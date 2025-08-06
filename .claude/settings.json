@@ -6,7 +6,7 @@
                 "hooks": [
                     {
                         "type": "command",
-                        "command": "echo '🔧 ツールを使用する前に、エージェントが適切に割り当てられていることを確認してください。'",
+                        "command": "echo '🔧 ツールを使用する前に、エージェントが適切に割り当てられていることを確認してください。\n\n利用可能なエージェント一覧：\n@agent-planner 計画を立てると時に使います\n@agent-executor 実装する時に使います\n@agent-reviewer コードレビューする時に使います'",
                         "timeout": 5000
                     }
                 ]
@@ -17,7 +17,18 @@
                 "hooks": [
                     {
                         "type": "command",
-                        "command": "echo '📝 ユーザープロンプトが送信されました。タスクに応じてエージェントを適切に割り当ててください。'"
+                        "command": "echo '📝 ユーザープロンプトが送信されました。タスクに応じてエージェントを適切に割り当ててください。\n\n利用可能なエージェント一覧：\n@agent-planner 計画を立てると時に使います\n@agent-executor 実装する時に使います\n@agent-reviewer コードレビューする時に使います\n\n⚡ ワークフロー：\nPlanner → Executor → Reviewer → Planner（必要時）'"
+                    }
+                ]
+            }
+        ],
+        "PostToolUse": [
+            {
+                "matcher": "^Task$",
+                "hooks": [
+                    {
+                        "type": "command",
+                        "command": "echo '✅ エージェントタスク完了。次のステップを確認してください。\n\nワークフロー：\n1. Planner実行後 → Executorで実装\n2. Executor実行後 → Reviewerでレビュー\n3. Reviewer実行後 → Plannerで評価・計画更新'"
                     }
                 ]
             }
