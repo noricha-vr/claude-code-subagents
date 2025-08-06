@@ -41,8 +41,8 @@ async function initializeFFmpeg(): Promise<void> {
     postMessage(message);
   });
 
-  // Load FFmpeg core from CDN
-  const baseURL = 'https://unpkg.com/@ffmpeg/core@0.12.6/dist/umd';
+  // Load FFmpeg core from local files to avoid CORS issues
+  const baseURL = '/ffmpeg-core';
   
   await ffmpeg.load({
     coreURL: await toBlobURL(`${baseURL}/ffmpeg-core.js`, 'text/javascript'),

@@ -1,0 +1,27 @@
+{
+  "name": "Video to MP3 Converter",
+  "short_name": "Vid2MP3",
+  "description": "Convert video files to MP3 audio using FFmpeg in your browser",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#1f2937",
+  "theme_color": "#3b82f6",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["multimedia", "utilities", "productivity"],
+  "screenshots": [],
+  "shortcuts": []
+}

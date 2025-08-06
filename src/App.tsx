@@ -4,6 +4,7 @@ import FileUploader from './components/FileUploader';
 import ConversionProgress from './components/ConversionProgress';
 import DownloadButton from './components/DownloadButton';
 import ErrorDisplay from './components/ErrorDisplay';
+import InstallPrompt from './components/InstallPrompt';
 import { useFFmpegSimple as useFFmpeg } from './hooks/useFFmpegSimple';
 import { useConversionState } from './hooks/useConversionState';
 import { ConversionProgress as ConversionProgressType, AudioFile, ConversionResult } from './types';
@@ -122,6 +123,8 @@ function App() {
           />
         </div>
       </main>
+      
+      <InstallPrompt />
     </div>
   );
 }
