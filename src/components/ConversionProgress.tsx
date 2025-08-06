@@ -33,7 +33,7 @@ const ConversionProgress: React.FC<ConversionProgressProps> = React.memo(({ prog
   }
 
   return (
-    <div className="w-full max-w-md mx-auto mt-6">
+    <div className="w-full max-w-md mx-auto mt-6" data-testid="progress-bar">
       <div className="bg-white rounded-lg shadow-md p-6">
         <div className="flex items-center justify-between mb-2">
           <span className="text-sm font-medium text-gray-700">

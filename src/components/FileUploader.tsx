@@ -34,7 +34,7 @@ const FileUploader: React.FC<FileUploadProps> = React.memo(({
   }, [handleClick]);
 
   return (
-    <div className="w-full max-w-md mx-auto">
+    <div className="w-full max-w-md mx-auto" data-testid="file-uploader">
       <div 
         {...dragProps}
         className={`border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-colors ${

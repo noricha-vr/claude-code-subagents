@@ -28,7 +28,7 @@ const ErrorDisplay: React.FC<ErrorDisplayProps> = ({ error, onDismiss }) => {
   };
 
   return (
-    <div className="w-full max-w-md mx-auto mt-6">
+    <div className="w-full max-w-md mx-auto mt-6" data-testid="error-display">
       <div className="bg-red-50 border border-red-200 rounded-lg p-4">
         <div className="flex items-start">
           <div className="flex-shrink-0 mr-3">
