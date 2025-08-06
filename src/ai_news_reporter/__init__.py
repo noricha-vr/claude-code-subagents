@@ -1,20 +1,14 @@
-"""AI News Reporter - 自動ニュースレポート生成システム
+"""
+AI News Reporter - AIニュース自動収集・レポート生成システム
 
-複数のソースから最新のAIニュースを自動収集し、重要度に基づいて選別・整理して、
-日本語でわかりやすいレポートを生成する自動実行スクリプトシステム。
+複数のニュースソースからAI関連ニュースを収集し、
+重要度ランキング付きの日本語レポートを生成します。
 """
 
 __version__ = "0.1.0"
-__author__ = "Claude Code Assistant"
+__author__ = "Claude Code Agent"
 
-from .models import NewsItem, Report, NewsSource
-from .config import Settings
-from .logger import setup_logger
+from .models.news_item import NewsItem
+from .models.report import NewsReport
 
-__all__ = [
-    "NewsItem",
-    "Report", 
-    "NewsSource",
-    "Settings",
-    "setup_logger",
-]
+__all__ = ["NewsItem", "NewsReport"]
