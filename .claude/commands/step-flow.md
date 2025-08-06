@@ -33,26 +33,37 @@ graph TD
     C --> D[Step 1開始]
     
     D --> E[@executor: 1ファイル実装]
-    E --> F[@reviewer: 即レビュー]
-    F --> G{合格?}
+    E --> F[✓ レビュー必須チェック]
+    F -->|未実施| F2[🛑 停止: レビュー呼び出し強制]
+    F2 --> G[@reviewer: 即レビュー]
+    F -->|実施済み| G
+    G --> H{合格?}
     
-    G -->|No| H[@executor: 修正]
-    H --> F
+    H -->|No| I[@executor: 修正]
+    I --> F
     
-    G -->|Yes| I[Step完了記録]
-    I --> J{全Step完了?}
+    H -->|Yes| J[Step完了記録]
+    J --> K{全Step完了?}
     
-    J -->|No| K[次Step]
-    K --> E
+    K -->|No| L[次Step]
+    L --> E
     
-    J -->|Yes| L[Phase完了]
-    L --> M{全Phase完了?}
+    K -->|Yes| M[Phase完了]
+    M --> N{全Phase完了?}
     
-    M -->|No| N[次Phase]
-    N --> D
+    N -->|No| O[次Phase]
+    O --> D
     
-    M -->|Yes| O[プロジェクト完了]
+    N -->|Yes| P[プロジェクト完了]
 ```
+
+### 🛑 レビュー強制メカニズム
+各ステップの実装完了後、以下のチェックが自動実行されます：
+1. `docs/results/step_XXX.md`の存在確認
+2. `@reviewer`の呼び出し履歴確認
+3. `docs/reviews/step_XXX_review.md`の存在確認
+
+いずれかが欠けている場合、次のステップに進めません。
 
 ## ステップ管理
 
@@ -161,10 +172,11 @@ step_flow:
     max_duration: 60      # 最大実行時間（秒）
   
   # レビュー設定
-  review:
     mode: normal          # strict|normal|light
     auto_fix: true        # 自動修正を試みる
     max_retries: 3        # 最大再試行回数
+    force_review: true    # レビューを強制実行
+    skip_review_check: false # レビューチェックをスキップ（非推奨）
   
   # 自動化設定
   automation:

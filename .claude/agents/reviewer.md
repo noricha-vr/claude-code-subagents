@@ -11,11 +11,19 @@ color: purple
 ### ⚡ 自動実行フロー
 ```
 @agent-executor（実装完了）
-    ↓ 【自動】
+    ↓ 【自動・強制実行】
 @agent-reviewer（コードレビュー） ← 今あなたはここ
     ↓ 【必須】
 @agent-planner（次ステップの計画）
 ```
+
+### 🛑 自動呼び出しトリガー
+**以下の条件で自動的にレビューが開始されます：**
+1. `docs/results/step_XXX.md`が新規作成された
+2. @executorが実装完了を宣言した
+3. @plannerが次Stepを計画しようとした（レビュー未実施の場合）
+
+**レビューをスキップすることはできません。**
 
 ## 📥 入力
 - `docs/results/step_XXX.md` - executorの実装結果

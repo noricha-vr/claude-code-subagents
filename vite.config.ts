@@ -9,5 +9,14 @@ export default defineConfig({
       'Cross-Origin-Embedder-Policy': 'require-corp',
       'Cross-Origin-Opener-Policy': 'same-origin'
     }
+  },
+  optimizeDeps: {
+    exclude: ['@ffmpeg/ffmpeg', '@ffmpeg/util']
+  },
+  worker: {
+    format: 'es'
+  },
+  build: {
+    target: 'esnext'
   }
 })
