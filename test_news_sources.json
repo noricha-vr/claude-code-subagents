@@ -1,0 +1,90 @@
+[
+  {
+    "name": "Hacker News AI",
+    "url": "https://hnrss.org/newest?q=AI+OR+machine+learning",
+    "source_type": "rss",
+    "enabled": true,
+    "priority": 8,
+    "update_interval_minutes": 30,
+    "api_key": null,
+    "api_headers": null,
+    "selectors": null
+  },
+  {
+    "name": "ArXiv CS.AI",
+    "url": "http://export.arxiv.org/rss/cs.AI",
+    "source_type": "rss",
+    "enabled": true,
+    "priority": 9,
+    "update_interval_minutes": 60,
+    "api_key": null,
+    "api_headers": null,
+    "selectors": null
+  },
+  {
+    "name": "MIT Technology Review AI",
+    "url": "https://www.technologyreview.com/topic/artificial-intelligence/feed/",
+    "source_type": "rss",
+    "enabled": true,
+    "priority": 7,
+    "update_interval_minutes": 120,
+    "api_key": null,
+    "api_headers": null,
+    "selectors": null
+  },
+  {
+    "name": "TechCrunch AI",
+    "url": "https://techcrunch.com/category/artificial-intelligence/feed/",
+    "source_type": "rss",
+    "enabled": true,
+    "priority": 6,
+    "update_interval_minutes": 60,
+    "api_key": null,
+    "api_headers": null,
+    "selectors": null
+  },
+  {
+    "name": "Google AI Blog",
+    "url": "https://ai.googleblog.com/feeds/posts/default",
+    "source_type": "rss",
+    "enabled": true,
+    "priority": 8,
+    "update_interval_minutes": 240,
+    "api_key": null,
+    "api_headers": null,
+    "selectors": null
+  },
+  {
+    "name": "OpenAI Blog",
+    "url": "https://openai.com/blog/rss.xml",
+    "source_type": "rss",
+    "enabled": true,
+    "priority": 9,
+    "update_interval_minutes": 480,
+    "api_key": null,
+    "api_headers": null,
+    "selectors": null
+  },
+  {
+    "name": "DeepMind Blog",
+    "url": "https://deepmind.com/blog/feed/basic/",
+    "source_type": "rss",
+    "enabled": true,
+    "priority": 8,
+    "update_interval_minutes": 480,
+    "api_key": null,
+    "api_headers": null,
+    "selectors": null
+  },
+  {
+    "name": "AI News - The Next Web",
+    "url": "https://thenextweb.com/artificial-intelligence/feed/",
+    "source_type": "rss",
+    "enabled": true,
+    "priority": 5,
+    "update_interval_minutes": 120,
+    "api_key": null,
+    "api_headers": null,
+    "selectors": null
+  }
+]
