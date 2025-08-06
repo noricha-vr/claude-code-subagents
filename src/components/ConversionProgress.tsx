@@ -57,7 +57,7 @@ const ConversionProgress: React.FC<ConversionProgressProps> = ({ progress }) => 
           </p>
         )}
         
-        {progress.message && progress.stage !== 'idle' && (
+        {progress.message && (
           <p className="text-sm text-gray-600 mt-2">
             {progress.message}
           </p>

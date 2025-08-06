@@ -1,7 +1,7 @@
 // Video to MP3 Converter - File Validation Utilities
 
 import { SUPPORTED_VIDEO_FORMATS, SUPPORTED_VIDEO_EXTENSIONS, MAX_FILE_SIZE, MIN_FILE_SIZE } from '../config/constants';
-import { ConversionError, ErrorMessages } from './errorHandler';
+import { ErrorMessages } from './errorHandler';
 
 export interface ValidationResult {
   isValid: boolean;
