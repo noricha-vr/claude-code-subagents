@@ -109,7 +109,7 @@ class StockReportConfig(BaseModel):
     """株価レポート設定モデル"""
 
     target_indices: List[str] = Field(
-        default=["^N225", "^TOPX", "^MOTHERS"], description="取得対象指数"
+        default=["^N225", "1306.T", "2516.T"], description="取得対象指数（日経225、TOPIX連動ETF、東証マザーズETF）"
     )
     target_stocks: List[str] = Field(
         default=[

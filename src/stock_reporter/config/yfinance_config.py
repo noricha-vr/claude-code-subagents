@@ -19,7 +19,11 @@ class YFinanceConfig:
     """yfinance設定クラス"""
 
     # 日本市場の主要指数マッピング
-    JAPANESE_INDICES = {"^N225": "日経平均株価", "^TOPX": "TOPIX", "^MOTHERS": "マザーズ指数"}
+    JAPANESE_INDICES = {
+        "^N225": "日経平均株価", 
+        "1306.T": "TOPIX連動型上場投資信託", 
+        "2516.T": "東証マザーズETF"
+    }
 
     # リクエスト間隔（秒）
     REQUEST_DELAY = 1.0
@@ -162,8 +166,8 @@ class YFinanceConfig:
             code = symbol[:-2]
             return code.isdigit() and len(code) == 4
 
-        # 指数の場合は^で始まる
-        if symbol.startswith("^"):
+        # 指数の場合は^で始まるか、JAPANESE_INDICESに含まれる
+        if symbol.startswith("^") or symbol in cls.JAPANESE_INDICES:
             return symbol in cls.JAPANESE_INDICES
 
         return False

@@ -16,7 +16,7 @@
 - [ ] Step 002: 株価データモデル定義とyfinance設定 (推定60行)
 
 ### Phase 2: データ収集機能
-- [ ] Step 003: 日本株価指数収集機能実装（日経平均、TOPIX等） (推定80行)
+- [x] Step 003: 日本株価指数収集機能実装（日経平均、TOPIX等） (推定80行)
 - [ ] Step 004: 主要銘柄株価収集機能実装（Top30銘柄） (推定90行)
 - [ ] Step 005: 市場データ統合と前日比計算 (推定70行)
 
@@ -31,23 +31,23 @@
 
 ---
 
-## 現在のステップ: Step 001
+## 現在のステップ: Step 004
 ### 実装内容
-株価レポートシステム用のディレクトリ構造とベース設定ファイルを作成
+主要銘柄株価収集機能実装（Top30銘柄）
 
 ### 前提条件
-- Python環境が利用可能
-- uvでの依存関係管理
-- 既存のAIニュースシステムと並行動作
+- Step 001-003が完了済み
+- 指数収集機能が動作済み
+- yfinance設定が完了済み
 
 ### 成功基準
-- src/stock_reporter/ ディレクトリ構造が作成される
-- pyproject.tomlに株価系依存関係が追加される
-- logsディレクトリに株価ログ設定が追加される
+- 主要銘柄の株価データ収集機能が動作する
+- 銘柄別の前日比・変動率が計算される
+- エラーハンドリングとリトライ機能が実装される
 
 ### 技術詳細
-- ファイル: src/stock_reporter/__init__.py, config/stock_settings.py, scripts/collect_stock_data.py
-- 使用技術: Python, yfinance, Pydantic, Jinja2
+- ファイル: src/stock_reporter/collectors/stock_collector.py
+- 使用技術: Python, yfinance, Pydantic, asyncio
 - ログ戦略: 開発環境では logs/stock_reporter.log にファイル出力
 
 ### 対象銘柄・指数

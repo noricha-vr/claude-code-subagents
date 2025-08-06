@@ -4,7 +4,14 @@
 
 from abc import ABC, abstractmethod
 from typing import Dict, List, Any
-from ..config import setup_stock_logger
+import sys
+from pathlib import Path
+
+# プロジェクトルートをPATHに追加
+project_root = Path(__file__).parent.parent.parent.parent
+sys.path.insert(0, str(project_root))
+
+from config.stock_settings import setup_stock_logger
 
 logger = setup_stock_logger()
 

@@ -1,0 +1,13 @@
+{
+  "test_timestamp": "2025-08-06T22:14:20.630655",
+  "collection_results": {
+    "success_count": 1,
+    "failed_count": 2,
+    "total_requested": 3
+  },
+  "processing_results": {
+    "status": "success",
+    "market_direction": "positive"
+  },
+  "report_data_status": "success"
+}
