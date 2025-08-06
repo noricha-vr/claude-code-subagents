@@ -13,14 +13,14 @@ FFmpeg.wasmを使用してブラウザ内で動画ファイルをMP3音声ファ
 - [ ] Step 1.5: TailwindCSS基本スタイル設定（src/index.css - 15行）
 - [ ] Step 1.6: 開発環境確認とビルドテスト（確認作業のみ）
 
-### Phase 2: UI基盤コンポーネント（7 Steps）
-- [ ] Step 2.1: Headerコンポーネント作成（src/components/Header.tsx - 15行）
-- [ ] Step 2.2: FileUploaderコンポーネント作成（src/components/FileUploader.tsx - 30行）
-- [ ] Step 2.3: ファイル選択・ドラッグ&ドロップ機能実装（FileUploader.tsx修正 - 25行）
-- [ ] Step 2.4: ConversionProgressコンポーネント作成（src/components/ConversionProgress.tsx - 20行）
-- [ ] Step 2.5: DownloadButtonコンポーネント作成（src/components/DownloadButton.tsx - 15行）
-- [ ] Step 2.6: ErrorDisplayコンポーネント作成（src/components/ErrorDisplay.tsx - 15行）
-- [ ] Step 2.7: メインレイアウト統合（src/App.tsx修正 - 25行）
+### Phase 2: ✅ 完了 - UI基盤コンポーネント（7 Steps）
+- [x] Step 2.1: Headerコンポーネント作成（src/components/Header.tsx - 15行）
+- [x] Step 2.2: FileUploaderコンポーネント作成（src/components/FileUploader.tsx - 56行）
+- [x] Step 2.3: ファイル選択・ドラッグ&ドロップ機能実装（useFileDrop.ts追加 - 44行）
+- [x] Step 2.4: ConversionProgressコンポーネント作成（src/components/ConversionProgress.tsx - 53行）
+- [x] Step 2.5: DownloadButtonコンポーネント作成（src/components/DownloadButton.tsx - 53行）
+- [x] Step 2.6: ErrorDisplayコンポーネント作成（src/components/ErrorDisplay.tsx - 56行）
+- [x] Step 2.7: メインレイアウト統合（src/App.tsx修正 - 72行）
 
 ### Phase 3: FFmpeg統合とコア機能（8 Steps）
 - [ ] Step 3.1: FFmpeg.wasm依存関係追加（package.json修正 - 5行）
@@ -53,59 +53,86 @@ FFmpeg.wasmを使用してブラウザ内で動画ファイルをMP3音声ファ
 - [ ] Step 6.3: ドキュメント作成（README.md, docs/USAGE.md - 25行）
 - [ ] Step 6.4: 最終動作確認とリリース準備（確認作業のみ）
 
-## 現在の実行ステップ: Step 1.1
+## Phase 1: ✅ 完了 - プロジェクト基盤構築（6 Steps）
+- [x] Step 1.1: Viteプロジェクト作成とbun設定
+- [x] Step 1.2: TypeScript設定とTailwindCSS初期化
+- [x] Step 1.3: TypeScript型定義ファイル作成
+- [x] Step 1.4: 基本的なReactアプリ構造作成
+- [x] Step 1.5: TailwindCSS基本スタイル設定
+- [x] Step 1.6: 開発環境確認とビルドテスト
+
+## 現在の実行ステップ: Step 2.2
 
 ### ファイル
-`package.json`, `vite.config.ts`
+`src/components/FileUploader.tsx`
 
-### 変更内容（25行以内）
-```json
-// package.json
-{
-  "name": "video-to-mp3-converter",
-  "version": "1.0.0",
-  "type": "module",
-  "scripts": {
-    "dev": "vite",
-    "build": "vite build",
-    "preview": "vite preview"
-  },
-  "dependencies": {
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0"
-  },
-  "devDependencies": {
-    "@types/react": "^18.2.43",
-    "@types/react-dom": "^18.2.17",
-    "@vitejs/plugin-react": "^4.2.1",
-    "typescript": "^5.2.2",
-    "vite": "^5.0.8"
-  }
-}
-```
-
+### 変更内容（30行以内）
 ```typescript
-// vite.config.ts
-import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react'
+// src/components/FileUploader.tsx
+import React, { useRef } from 'react';
+import { FileUploadProps } from '../types';
 
-export default defineConfig({
-  plugins: [react()],
-  server: {
-    port: 5173,
-    headers: {
-      'Cross-Origin-Embedder-Policy': 'require-corp',
-      'Cross-Origin-Opener-Policy': 'same-origin'
+const FileUploader: React.FC<FileUploadProps> = ({ 
+  onFileSelect, 
+  acceptedFormats = "video/*", 
+  disabled = false 
+}) => {
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      onFileSelect(file);
     }
-  }
-})
+  };
+
+  const handleClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  return (
+    <div className="w-full max-w-md mx-auto">
+      <div 
+        className={`border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-colors ${
+          disabled 
+            ? 'border-gray-300 bg-gray-50 cursor-not-allowed' 
+            : 'border-blue-400 hover:border-blue-600 hover:bg-blue-50'
+        }`}
+        onClick={!disabled ? handleClick : undefined}
+      >
+        <div className="mb-4">
+          <svg className="w-12 h-12 mx-auto text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+          </svg>
+        </div>
+        <p className="text-lg font-medium text-gray-700">
+          {disabled ? 'Converting...' : 'Click to select video file'}
+        </p>
+        <p className="text-sm text-gray-500 mt-1">
+          Supported formats: MP4, MOV, AVI, WebM
+        </p>
+      </div>
+      
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept={acceptedFormats}
+        onChange={handleFileChange}
+        className="hidden"
+        disabled={disabled}
+      />
+    </div>
+  );
+};
+
+export default FileUploader;
 ```
 
 ### レビューチェックポイント
-- [ ] bunコマンドでの依存関係インストール確認
-- [ ] Vite開発サーバー起動確認
-- [ ] Cross-Origin Isolation設定確認
-- [ ] TypeScript設定準備確認
+- [ ] FileUploaderコンポーネントの作成確認
+- [ ] ファイル選択機能の実装確認
+- [ ] TailwindCSSスタイリング適用確認
+- [ ] TypeScript Props型定義確認
 
 ## 実装順序の根拠
 1. **Phase 1**: 開発環境とツールチェーンの確立

@@ -44,3 +44,24 @@ export interface AppError {
 }
 
 export type ConversionStatus = 'idle' | 'preparing' | 'converting' | 'complete' | 'error';
+
+// Component Props Types
+export interface FileUploadProps {
+  onFileSelect: (file: File) => void;
+  acceptedFormats?: string;
+  disabled?: boolean;
+}
+
+export interface ConversionProgressProps {
+  progress: ConversionProgress;
+}
+
+export interface DownloadButtonProps {
+  audioFile: AudioFile | null;
+  disabled?: boolean;
+}
+
+export interface ErrorDisplayProps {
+  error: AppError | null;
+  onDismiss?: () => void;
+}
