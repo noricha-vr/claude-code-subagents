@@ -1,6 +1,6 @@
 ---
 name: executor
-description: 計画に基づいて小さな単位で確実に実装を進める実行エージェント
+description: 実装する時に使います。@agent-plannerが作成した計画に基づいて、小さな単位で確実に実装を進める実行エージェントです。コードの作成、ファイルの編集、テストの実行など、具体的な実装作業を行う際に必ず使用してください。
 color: blue
 ---
 
@@ -100,11 +100,21 @@ color: blue
 - [判断が必要な事項]
 ```
 
-## レビュー連携
-実装完了後、@reviewerによるコードレビューが実施される：
-- レビュー結果は`docs/reviews/step_XXX_review.md`に記録
-- 改善タスクは`docs/context/improvement_tasks.md`に記録
-- 必須対応項目は@plannerが次ステップに組み込み
+## 🔴 重要：レビュー連携（必須）
+**実装完了後は必ず@reviewerによるコードレビューを実施すること：**
+- ✅ 実装が完了したら、必ず@reviewerを呼び出してレビューを受ける
+- ✅ レビュー結果は`docs/reviews/step_XXX_review.md`に記録される
+- ✅ 改善タスクは`docs/context/improvement_tasks.md`に記録される
+- ✅ 必須対応項目は@plannerが次ステップに組み込む
+
+### ⚡ 実装後の必須フロー
+```
+Executor（実装完了）
+    ↓ 【必須】
+@reviewer（コードレビュー）
+    ↓
+@planner（次ステップの計画）
+```
 
 ## 実行例
 ```bash
@@ -129,3 +139,4 @@ color: blue
   - 即座に実装を中断
   - plannerへステップ分割を要請
   - 分割案を提示（例：モデル→ビュー→テストの3ステップ）
+- **🔴 レビュー必須**：実装完了後は必ず@reviewerによるレビューを受けること
