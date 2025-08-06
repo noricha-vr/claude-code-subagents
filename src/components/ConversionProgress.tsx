@@ -1,8 +1,8 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { ConversionProgressProps } from '../types';
 
-const ConversionProgress: React.FC<ConversionProgressProps> = ({ progress }) => {
-  const getProgressColor = () => {
+const ConversionProgress: React.FC<ConversionProgressProps> = React.memo(({ progress }) => {
+  const progressColor = useMemo(() => {
     switch (progress.stage) {
       case 'error':
         return 'bg-red-500';
@@ -11,9 +11,9 @@ const ConversionProgress: React.FC<ConversionProgressProps> = ({ progress }) => 
       default:
         return 'bg-blue-500';
     }
-  };
+  }, [progress.stage]);
 
-  const getStageMessage = () => {
+  const stageMessage = useMemo(() => {
     switch (progress.stage) {
       case 'loading':
         return 'Loading FFmpeg...';
@@ -26,7 +26,7 @@ const ConversionProgress: React.FC<ConversionProgressProps> = ({ progress }) => 
       default:
         return progress.message;
     }
-  };
+  }, [progress.stage, progress.message]);
 
   if (progress.stage === 'idle') {
     return null;
@@ -37,16 +37,23 @@ const ConversionProgress: React.FC<ConversionProgressProps> = ({ progress }) => 
       <div className="bg-white rounded-lg shadow-md p-6">
         <div className="flex items-center justify-between mb-2">
           <span className="text-sm font-medium text-gray-700">
-            {getStageMessage()}
+            {stageMessage}
           </span>
           <span className="text-sm text-gray-500">
             {progress.percentage}%
           </span>
         </div>
         
-        <div className="w-full bg-gray-200 rounded-full h-2">
+        <div 
+          className="w-full bg-gray-200 rounded-full h-2"
+          role="progressbar"
+          aria-valuenow={progress.percentage}
+          aria-valuemin={0}
+          aria-valuemax={100}
+          aria-label={`Conversion progress: ${progress.percentage}%`}
+        >
           <div
-            className={`h-2 rounded-full transition-all duration-300 ${getProgressColor()}`}
+            className={`h-2 rounded-full transition-all duration-300 ${progressColor}`}
             style={{ width: `${progress.percentage}%` }}
           />
         </div>
@@ -65,6 +72,6 @@ const ConversionProgress: React.FC<ConversionProgressProps> = ({ progress }) => 
       </div>
     </div>
   );
-};
+});
 
 export default ConversionProgress;

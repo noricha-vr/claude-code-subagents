@@ -1,8 +1,8 @@
-import React, { useRef } from 'react';
+import React, { useRef, useCallback } from 'react';
 import { FileUploadProps } from '../types';
 import { useFileDrop } from '../hooks/useFileDrop';
 
-const FileUploader: React.FC<FileUploadProps> = ({ 
+const FileUploader: React.FC<FileUploadProps> = React.memo(({ 
   onFileSelect, 
   acceptedFormats = "video/*", 
   disabled = false 
@@ -15,16 +15,23 @@ const FileUploader: React.FC<FileUploadProps> = ({
     disabled,
   });
 
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
       onFileSelect(file);
     }
-  };
+  }, [onFileSelect]);
 
-  const handleClick = () => {
+  const handleClick = useCallback(() => {
     fileInputRef.current?.click();
-  };
+  }, []);
+
+  const handleKeyDown = useCallback((event: React.KeyboardEvent) => {
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault();
+      handleClick();
+    }
+  }, [handleClick]);
 
   return (
     <div className="w-full max-w-md mx-auto">
@@ -38,6 +45,11 @@ const FileUploader: React.FC<FileUploadProps> = ({
             : 'border-blue-400 hover:border-blue-600 hover:bg-blue-50'
         }`}
         onClick={!disabled ? handleClick : undefined}
+        onKeyDown={!disabled ? handleKeyDown : undefined}
+        role="button"
+        tabIndex={disabled ? -1 : 0}
+        aria-label={disabled ? 'File uploader (converting)' : 'Click or drag to upload video file'}
+        aria-disabled={disabled}
       >
         <div className="mb-4">
           <svg className="w-12 h-12 mx-auto text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -67,6 +79,6 @@ const FileUploader: React.FC<FileUploadProps> = ({
       />
     </div>
   );
-};
+});
 
 export default FileUploader;
