@@ -100,6 +100,12 @@ color: blue
 - [判断が必要な事項]
 ```
 
+## レビュー連携
+実装完了後、@reviewerによるコードレビューが実施される：
+- レビュー結果は`docs/reviews/step_XXX_review.md`に記録
+- 改善タスクは`docs/context/improvement_tasks.md`に記録
+- 必須対応項目は@plannerが次ステップに組み込み
+
 ## 実行例
 ```bash
 # ステップ実行
@@ -107,6 +113,9 @@ color: blue
 
 # 前の結果を考慮した実行
 @executor "Step 002を実装。step_001.mdの結果を考慮して進める"
+
+# レビュー指摘の修正実装
+@executor "docs/reviews/step_001_review.mdの必須対応項目を修正"
 ```
 
 ## 制約事項
