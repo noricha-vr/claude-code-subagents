@@ -37,10 +37,14 @@ const ConversionProgress: React.FC<ConversionProgressProps> = ({
 
   const getPhaseIcon = () => {
     switch (progress.phase) {
-      case 'idle':
+      case 'initializing':
         return (
-          <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.828 14.828a4 4 0 01-5.656 0M9 10h1m4 0h1M12 12h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+        )
+      case 'ready':
+        return (
+          <svg className="w-8 h-8 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
         )
       case 'loading':
@@ -72,6 +76,10 @@ const ConversionProgress: React.FC<ConversionProgressProps> = ({
 
   const getPhaseColor = () => {
     switch (progress.phase) {
+      case 'initializing':
+        return 'text-blue-600'
+      case 'ready':
+        return 'text-green-600'
       case 'loading':
       case 'converting':
         return 'text-primary-600'
@@ -95,8 +103,8 @@ const ConversionProgress: React.FC<ConversionProgressProps> = ({
     }
   }
 
-  const canStart = progress.phase === 'idle'
-  const isProcessing = progress.phase === 'loading' || progress.phase === 'converting'
+  const canStart = progress.phase === 'ready'
+  const isProcessing = progress.phase === 'initializing' || progress.phase === 'loading' || progress.phase === 'converting'
   const isComplete = progress.phase === 'complete'
 
   return (
@@ -108,7 +116,8 @@ const ConversionProgress: React.FC<ConversionProgressProps> = ({
         </div>
         <div className="flex-1">
           <h3 className={`text-lg font-semibold ${getPhaseColor()}`}>
-            {progress.phase === 'idle' && '準備完了'}
+            {progress.phase === 'initializing' && 'FFmpeg初期化中'}
+            {progress.phase === 'ready' && '変換準備完了'}
             {progress.phase === 'loading' && 'ライブラリ読み込み中'}
             {progress.phase === 'converting' && '変換中'}
             {progress.phase === 'complete' && '変換完了'}
@@ -221,6 +230,7 @@ const ConversionProgress: React.FC<ConversionProgressProps> = ({
             <div>
               <p className="text-blue-800 font-medium">処理中...</p>
               <p className="text-blue-600 text-sm">
+                {progress.phase === 'initializing' && 'FFmpegを初期化しています。初回は少し時間がかかる場合があります。'}
                 {progress.phase === 'loading' && 'FFmpeg WebAssemblyライブラリを読み込み中です。初回は少し時間がかかる場合があります。'}
                 {progress.phase === 'converting' && '動画ファイルをMP3形式に変換中です。ファイルサイズによって時間がかかる場合があります。'}
               </p>

@@ -7,9 +7,9 @@ export const useFFmpeg = () => {
   const [isLoading, setIsLoading] = useState(false)
   const [isReady, setIsReady] = useState(false)
   const [progress, setProgress] = useState<ConversionProgress>({
-    phase: 'idle',
+    phase: 'initializing',
     progress: 0,
-    message: 'FFmpegの準備をしてください'
+    message: 'FFmpegを初期化しています...'
   })
   
   const workerManagerRef = useRef<WorkerManager | null>(null)
@@ -49,9 +49,9 @@ export const useFFmpeg = () => {
       await workerManager.loadFFmpeg()
       setIsReady(true)
       setProgress({
-        phase: 'idle',
+        phase: 'ready',
         progress: 0,
-        message: 'FFmpegが準備完了しました'
+        message: 'FFmpegが準備完了しました。変換を開始できます。'
       })
     } catch (error) {
       console.error('FFmpeg load error:', error)
@@ -128,9 +128,9 @@ export const useFFmpeg = () => {
   // Reset state
   const reset = useCallback(() => {
     setProgress({
-      phase: 'idle',
+      phase: 'ready',
       progress: 0,
-      message: 'ファイルを選択してください'
+      message: 'FFmpegが準備完了しました。変換を開始できます。'
     })
   }, [])
 
@@ -146,9 +146,9 @@ export const useFFmpeg = () => {
         setIsReady(false)
         setIsLoading(false)
         setProgress({
-          phase: 'idle',
+          phase: 'initializing',
           progress: 0,
-          message: 'FFmpegの準備をしてください'
+          message: 'FFmpegを初期化しています...'
         })
       }
     }

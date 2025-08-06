@@ -1,5 +1,5 @@
 export interface ConversionProgress {
-  phase: 'idle' | 'loading' | 'converting' | 'complete' | 'error';
+  phase: 'initializing' | 'ready' | 'loading' | 'converting' | 'complete' | 'error';
   progress: number; // 0-100
   message: string;
   eta?: number; // seconds

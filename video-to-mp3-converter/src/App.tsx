@@ -45,12 +45,19 @@ function App() {
     }
   }, [handleGenericError])
 
-  const handleFileSelect = useCallback((file: VideoFile) => {
+  const handleFileSelect = useCallback(async (file: VideoFile) => {
     setSelectedFile(file)
     clearErrors()
     setResult(null)
     resetFFmpeg()
-  }, [clearErrors, resetFFmpeg])
+    
+    // Auto-initialize FFmpeg when file is selected
+    try {
+      await loadFFmpeg()
+    } catch (error) {
+      console.error('Failed to auto-initialize FFmpeg:', error)
+    }
+  }, [clearErrors, resetFFmpeg, loadFFmpeg])
 
   const handleConversionStart = useCallback(async () => {
     if (!selectedFile) return
@@ -59,12 +66,12 @@ function App() {
       clearErrors()
       setResult(null)
 
-      // Load FFmpeg if not already loaded
+      // Ensure FFmpeg is loaded before conversion
       if (!isReady) {
         await loadFFmpeg()
       }
 
-      // Start conversion
+      // Start conversion immediately
       const conversionResult = await convertVideo(selectedFile, {
         bitrate: 128,
         quality: 'standard'
