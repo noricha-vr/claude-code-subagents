@@ -180,3 +180,61 @@ graph LR
 - 問題があれば次に進まない
 - Phaseをまたぐ依存関係は明記
 - git commitは3〜5 Step毎に実施
+
+## 🔄 ワークフローオーケストレーター連携
+
+### 自動実行時の処理
+計画作成完了後、以下を自動実行：
+
+1. **workflow_state.json更新**
+```json
+{
+  "current_phase": "executing",
+  "current_agent": "executor",
+  "next_action": {
+    "agent": "executor",
+    "task": "Step X.Xの実装"
+  }
+}
+```
+
+2. **次エージェントの自動呼び出し**
+```bash
+# 計画完了後、自動的にexecutorを呼び出し
+@agent-executor "docs/context/plan.mdの現在ステップを実装"
+```
+
+3. **ハンドオフファイル作成**
+```json
+// docs/context/handoff.json
+{
+  "from": "planner",
+  "to": "executor",
+  "timestamp": "2025-08-07T10:30:00Z",
+  "step": "Step 1.2",
+  "files": {
+    "plan": "docs/context/plan.md",
+    "current_step": "docs/context/current_step.md"
+  },
+  "instructions": "TypeScript設定とTailwindCSS初期化を実装"
+}
+```
+
+### レビュー結果受け取り時の処理
+1. **必須チェック**
+   - `docs/reviews/step_XXX_review.md`の存在確認
+   - 必須修正項目の抽出
+
+2. **自動判断**
+   - 必須修正あり → 修正用Stepを作成してexecutor呼び出し
+   - 修正なし → 次のStepを計画してexecutor呼び出し
+
+3. **ワークフロー継続指示**
+```bash
+# レビュー結果に基づく自動処理
+if (必須修正あり) {
+  @agent-executor "docs/reviews/step_XXX_review.mdの必須修正を実装"
+} else {
+  @agent-executor "次のStep実装: docs/context/plan.md"
+}
+```

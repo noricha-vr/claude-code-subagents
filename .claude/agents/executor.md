@@ -151,3 +151,71 @@ Executor（実装完了）
   - plannerへステップ分割を要請
   - 分割案を提示（例：モデル→ビュー→テストの3ステップ）
 - **🔴 レビュー必須**：実装完了後は必ず@reviewerによるレビューを受けること
+
+## 🔄 ワークフローオーケストレーター連携
+
+### 自動実行時の処理
+実装完了後、以下を自動実行：
+
+1. **workflow_state.json更新**
+```json
+{
+  "current_phase": "reviewing",
+  "current_agent": "reviewer",
+  "last_execution": {
+    "step": "Step X.X",
+    "result": "docs/results/step_XXX.md",
+    "status": "completed"
+  },
+  "next_action": {
+    "agent": "reviewer",
+    "task": "Step X.Xのレビュー"
+  }
+}
+```
+
+2. **次エージェントの自動呼び出し**
+```bash
+# 実装完了後、自動的にreviewerを呼び出し
+@agent-reviewer "docs/results/step_XXX.mdの実装をレビュー"
+```
+
+3. **ハンドオフファイル作成**
+```json
+// docs/context/handoff.json
+{
+  "from": "executor",
+  "to": "reviewer",
+  "timestamp": "2025-08-07T10:45:00Z",
+  "step": "Step 1.2",
+  "files": {
+    "result": "docs/results/step_XXX.md",
+    "changed_files": ["file1.ts", "file2.css"],
+    "test_results": "passed"
+  },
+  "instructions": "実装内容のレビューを実施"
+}
+```
+
+### エラー時の処理
+1. **エラー記録**
+   - `docs/results/step_XXX_error.md`に詳細記録
+   - workflow_state.jsonにエラー情報追加
+
+2. **自動エスカレーション**
+```bash
+# エラー発生時は自動的にplannerにエスカレーション
+@agent-planner "Step X.Xでエラー発生。対処方針を決定: docs/results/step_XXX_error.md"
+```
+
+3. **リトライ判断**
+   - 軽微なエラー：自動リトライ（最大3回）
+   - 重大なエラー：plannerへエスカレーション
+
+### 完了確認チェックリスト
+実装完了時に自動確認：
+- ✅ results/step_XXX.md作成完了
+- ✅ テスト/動作確認実施
+- ✅ 変更ファイル一覧記録
+- ✅ エラーがないか、error.mdに記録済み
+- ✅ 次のreviewerへの引き継ぎ準備完了

@@ -364,3 +364,89 @@ graph LR
 # Executorの実装後にレビュー
 @reviewer "docs/results/step_001.mdの実装をレビュー。結果をdocs/reviews/step_001_review.mdに保存し、改善タスクをdocs/context/improvement_tasks.mdに記録"
 ```
+
+## 🔄 ワークフローオーケストレーター連携
+
+### 自動実行時の処理
+レビュー完了後、以下を自動実行：
+
+1. **workflow_state.json更新**
+```json
+{
+  "current_phase": "planning",
+  "current_agent": "planner",
+  "last_review": {
+    "step": "Step X.X",
+    "result": "docs/reviews/step_XXX_review.md",
+    "status": "completed",
+    "has_critical_issues": false,
+    "requires_fix": true
+  },
+  "next_action": {
+    "agent": "planner",
+    "task": "レビュー結果を受けて次の計画"
+  }
+}
+```
+
+2. **次エージェントの自動呼び出し**
+```bash
+# レビュー完了後の自動判断
+if (必須修正あり) {
+  # 修正が必要な場合はplannerに修正計画を依頼
+  @agent-planner "レビュー指摘事項の修正計画: docs/reviews/step_XXX_review.md"
+} else {
+  # 問題なければ次のステップへ
+  @agent-planner "Step X.X完了。次のステップを計画"
+}
+```
+
+3. **ハンドオフファイル作成**
+```json
+// docs/context/handoff.json
+{
+  "from": "reviewer",
+  "to": "planner",
+  "timestamp": "2025-08-07T11:00:00Z",
+  "step": "Step 1.2",
+  "review_result": {
+    "severity": "medium",
+    "critical_issues": [],
+    "improvements": ["型定義の改善", "エラーハンドリング追加"],
+    "must_fix": ["パッケージバージョン更新"]
+  },
+  "files": {
+    "review": "docs/reviews/step_XXX_review.md",
+    "improvement_tasks": "docs/context/improvement_tasks.md"
+  },
+  "instructions": "必須修正項目を次のステップに組み込んで計画"
+}
+```
+
+### レビュー結果の自動分類
+1. **緊急度による自動判断**
+   - 🔴 Critical（セキュリティ・重大バグ）→ 即座に修正executor呼び出し
+   - 🟡 High（パフォーマンス・品質）→ 次のplannerで修正計画
+   - 🟢 Low（改善提案）→ improvement_tasks.mdに記録
+
+2. **自動エスカレーション条件**
+   - セキュリティ脆弱性検出時
+   - アーキテクチャレベルの問題発見時
+   - 3回以上の修正ループ発生時
+
+### 完了確認チェックリスト
+レビュー完了時に自動確認：
+- ✅ reviews/step_XXX_review.md作成完了
+- ✅ 改善タスクをimprovement_tasks.mdに記録
+- ✅ 優先度分類完了
+- ✅ workflow_state.json更新済み
+- ✅ 次のplannerへの引き継ぎ準備完了
+
+### 知識蓄積の自動化
+```bash
+# よくある問題パターンを自動記録
+if (同じ問題が3回以上発生) {
+  # docs/code-reviews/patterns/にパターン追加
+  echo "パターン検出: $PATTERN" >> docs/code-reviews/patterns.md
+}
+```
