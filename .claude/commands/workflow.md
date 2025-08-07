@@ -16,9 +16,9 @@ description: メインエージェントから実行するシンプルなワー�
 ```
 
 実行すると、メインエージェントが以下を順番に実行：
-1. @plannerで計画作成
-2. @executorで実装
-3. @reviewerでレビュー
+1. @agent-plannerで計画作成
+2. @agent-executorで実装
+3. @agent-reviewerでレビュー
 4. 必要に応じて繰り返し
 
 ## 🔄 実行フロー
