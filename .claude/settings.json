@@ -1,61 +1,28 @@
 {
-    "hooks": {
-        "UserPromptSubmit": [
-            {
-                "hooks": [
-                    {
-                        "type": "command",
-                        "command": "echo '📝 ユーザープロンプトが送信されました。\n\n🚀 ワークフロー自動実行：\n/step_flow start \"タスク説明\" - 新規ワークフロー開始\n/step_flow resume - 既存ワークフロー継続\n/step_flow status - 進捗状況確認\n\n⚡ 自動実行フロー：\nWorkflow Orchestrator → Planner → Executor → Reviewer → Planner（ループ）'"
-                    }
-                ]
-            }
-        ],
-        "PreToolUse": [
-            {
-                "matcher": "",
-                "hooks": [
-                    {
-                        "type": "command",
-                        "command": "echo '🔧 ツールを使用する前に、エージェントが適切に割り当てられていることを確認してください。\n\n利用可能なエージェント一覧：\n@agent-planner 計画を立てると時に使います\n@agent-executor 実装する時に使います\n@agent-reviewer コードレビューする時に使います\n@agent-workflow-orchestrator ワークフロー全体を管理する時に使います'",
-                        "timeout": 5000
-                    }
-                ]
-            }
-        ],
-        "PostToolUse": [
-            {
-                "matcher": "^Task$",
-                "hooks": [
-                    {
-                        "type": "command",
-                        "command": "if [ -f 'docs/context/workflow_state.json' ]; then STATE=$(cat docs/context/workflow_state.json | grep '\"current_phase\"' | cut -d'\"' -f4); AGENT=$(cat docs/context/workflow_state.json | grep '\"current_agent\"' | cut -d'\"' -f4); echo \"✅ エージェント完了\n現在のフェーズ: $STATE\n現在のエージェント: $AGENT\n\n🔄 次の自動アクション:\"; if [ \"$STATE\" = \"planning\" ]; then echo \"→ @agent-executor を自動呼び出し予定\"; elif [ \"$STATE\" = \"executing\" ]; then echo \"→ @agent-reviewer を自動呼び出し予定\"; elif [ \"$STATE\" = \"reviewing\" ]; then echo \"→ @agent-planner を自動呼び出し予定\"; fi; else echo '✅ エージェントタスク完了'; fi",
-                        "timeout": 5000
-                    }
-                ]
-            },
-            {
-                "matcher": "^Write$|^Edit$|^MultiEdit$",
-                "description": "ファイル作成・編集後の自動チェック",
-                "hooks": [
-                    {
-                        "type": "command",
-                        "command": "if [[ \"$1\" =~ docs/results/step_.*\\.md$ ]]; then echo '📄 実装結果ファイル検出！\n⚡ 自動アクション: @agent-reviewer を呼び出してレビューを実施してください'; elif [[ \"$1\" =~ docs/reviews/step_.*_review\\.md$ ]]; then echo '📝 レビュー結果ファイル検出！\n⚡ 自動アクション: @agent-planner を呼び出して次のステップを計画してください'; elif [[ \"$1\" =~ docs/context/plan\\.md$ ]]; then echo '📋 計画ファイル更新検出！\n⚡ 自動アクション: @agent-executor を呼び出して実装を開始してください'; fi",
-                        "timeout": 3000
-                    }
-                ]
-            }
-        ],
-        "FileWrite": [
-            {
-                "description": "ワークフロー状態の自動更新",
-                "hooks": [
-                    {
-                        "type": "command",
-                        "command": "if [ -f 'docs/context/workflow_state.json' ]; then echo '📊 ワークフロー状態を更新中...'; fi",
-                        "timeout": 2000
-                    }
-                ]
-            }
-        ]
+    "agents": {
+        "planner": {
+            "description": "計画を立てる時に使います。タスクを小さなステップに分解し、実装可能な単位で管理します。",
+            "preferred_tools": ["Read", "Write", "Edit"]
+        },
+        "executor": {
+            "description": "実装する時に使います。計画に基づいてコードを作成・編集します。",
+            "preferred_tools": ["Read", "Write", "Edit", "MultiEdit", "Bash"]
+        },
+        "reviewer": {
+            "description": "コードレビューする時に使います。実装内容を確認し、改善点を提案します。",
+            "preferred_tools": ["Read", "Grep", "Glob"]
+        }
+    },
+    "workflow": {
+        "auto_invoke_agents": true,
+        "agent_sequence": ["planner", "executor", "reviewer"],
+        "context_management": {
+            "use_context_file": true,
+            "context_path": "docs/context.md"
+        }
+    },
+    "optimization": {
+        "minimize_hooks": true,
+        "comment": "Hooksは最小限に。Claudeの自然な判断とTask toolのサブエージェント機能を活用"
     }
 }
