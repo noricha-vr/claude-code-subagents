@@ -7,7 +7,7 @@ const __dirname = path.dirname(__filename);
 
 test.describe('統合テスト - 動画→MP3変換フロー', () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto('http://localhost:5174');
+    await page.goto('http://localhost:5173');
   });
 
   test('完全な変換フロー - 動画アップロードからMP3ダウンロードまで', async ({ page }) => {
@@ -92,7 +92,7 @@ test.describe('統合テスト - 動画→MP3変換フロー', () => {
 
   test('PWA機能の統合テスト', async ({ page, context }) => {
     // Service Workerの登録確認
-    await page.goto('http://localhost:5174');
+    await page.goto('http://localhost:5173');
     
     // Service Workerが登録されるまで待機
     await page.waitForFunction(() => {
@@ -111,7 +111,7 @@ test.describe('パフォーマンステスト', () => {
   test('アプリケーション起動時間の測定', async ({ page }) => {
     const startTime = Date.now();
     
-    await page.goto('http://localhost:5174');
+    await page.goto('http://localhost:5173');
     await expect(page.locator('h1')).toBeVisible();
     
     const loadTime = Date.now() - startTime;
@@ -122,7 +122,7 @@ test.describe('パフォーマンステスト', () => {
   });
 
   test('メモリ使用量の監視', async ({ page }) => {
-    await page.goto('http://localhost:5174');
+    await page.goto('http://localhost:5173');
     
     // メモリ使用量の取得
     const memoryInfo = await page.evaluate(() => {

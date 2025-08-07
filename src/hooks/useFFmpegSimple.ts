@@ -63,31 +63,54 @@ export function useFFmpegSimple(): UseFFmpegReturn {
     try {
       // Load FFmpeg if not already loaded
       if (!ffmpeg.loaded) {
-        const baseURL = 'https://unpkg.com/@ffmpeg/core@0.12.6/dist/umd';
+        console.log('Loading FFmpeg from local files...');
+        const baseURL = '/ffmpeg-core';
         
-        await ffmpeg.load({
-          coreURL: await toBlobURL(`${baseURL}/ffmpeg-core.js`, 'text/javascript'),
-          wasmURL: await toBlobURL(`${baseURL}/ffmpeg-core.wasm`, 'application/wasm'),
-          workerURL: await toBlobURL(`${baseURL}/ffmpeg-core.worker.js`, 'text/javascript')
-        });
+        try {
+          // Try to load without multithreading first
+          console.log('Attempting to load single-threaded FFmpeg...');
+          await ffmpeg.load({
+            coreURL: await toBlobURL(`${baseURL}/ffmpeg-core.js`, 'text/javascript'),
+            wasmURL: await toBlobURL(`${baseURL}/ffmpeg-core.wasm`, 'application/wasm')
+          });
+          
+          console.log('FFmpeg loaded successfully (single-threaded)');
+        } catch (loadError) {
+          console.error('Single-threaded load failed, retrying with basic configuration:', loadError);
+          try {
+            // Fallback to basic load
+            await ffmpeg.load();
+            console.log('FFmpeg loaded with default configuration');
+          } catch (fallbackError) {
+            console.error('All FFmpeg load attempts failed:', fallbackError);
+            throw new Error(`FFmpeg loading failed: ${fallbackError}`);
+          }
+        }
       }
 
       // Write input file to FFmpeg virtual filesystem
       const inputName = file.name;
+      console.log(`Writing input file: ${inputName} (${file.size} bytes)`);
       await ffmpeg.writeFile(inputName, await fetchFile(file));
 
       // Execute conversion command
-      await ffmpeg.exec([
+      console.log('Starting conversion...');
+      const conversionCommand = [
         '-i', inputName,
         '-vn', // Disable video
         '-ar', '44100', // Audio sample rate
         '-ac', '2', // Audio channels (stereo)
         '-b:a', '192k', // Audio bitrate
         finalOutputName
-      ]);
-
+      ];
+      console.log('FFmpeg command:', conversionCommand.join(' '));
+      
+      await ffmpeg.exec(conversionCommand);
+      
+      console.log('Conversion completed, reading output file...');
       // Read the output file
       const data = await ffmpeg.readFile(finalOutputName) as Uint8Array;
+      console.log(`Output file size: ${data.length} bytes`);
       
       // Clean up files
       await ffmpeg.deleteFile(inputName);
@@ -104,11 +127,17 @@ export function useFFmpegSimple(): UseFFmpegReturn {
         }
       }));
     } catch (error) {
+      console.error('Conversion error:', error);
+      const errorMessage = error instanceof Error 
+        ? `${error.message} (${error.name})` 
+        : 'Unknown conversion error';
+      console.error('Detailed error:', errorMessage);
+      
       setState(prev => ({
         ...prev,
         isLoading: false,
         isConverting: false,
-        error: error instanceof Error ? error.message : 'Conversion failed'
+        error: errorMessage
       }));
     }
   }, [ffmpeg, reset]);
