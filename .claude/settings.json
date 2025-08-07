@@ -1,28 +1,29 @@
 {
-    "agents": {
-        "planner": {
-            "description": "計画を立てる時に使います。タスクを小さなステップに分解し、実装可能な単位で管理します。",
-            "preferred_tools": ["Read", "Write", "Edit"]
-        },
-        "executor": {
-            "description": "実装する時に使います。計画に基づいてコードを作成・編集します。",
-            "preferred_tools": ["Read", "Write", "Edit", "MultiEdit", "Bash"]
-        },
-        "reviewer": {
-            "description": "コードレビューする時に使います。実装内容を確認し、改善点を提案します。",
-            "preferred_tools": ["Read", "Grep", "Glob"]
-        }
-    },
-    "workflow": {
-        "auto_invoke_agents": true,
-        "agent_sequence": ["planner", "executor", "reviewer"],
-        "context_management": {
-            "use_context_file": true,
-            "context_path": "docs/context.md"
-        }
-    },
-    "optimization": {
-        "minimize_hooks": true,
-        "comment": "Hooksは最小限に。Claudeの自然な判断とTask toolのサブエージェント機能を活用"
-    }
+  "comment": "Claude Code Settings - Simplified Configuration",
+  "description": "ワークフローでサブエージェントを効率的に使うための最小限の設定",
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo '🚀 Claude Code セッション開始\\n利用可能なコマンド: /wf <タスク>'",
+            "timeout": 2
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Task",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo '✅ サブエージェントタスク完了'",
+            "timeout": 2
+          }
+        ]
+      }
+    ]
+  }
 }
