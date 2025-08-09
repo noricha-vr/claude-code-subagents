@@ -321,14 +321,6 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
           >
             別のファイル
           </button>
-          {canConvert && (
-            <button
-              onClick={() => {/* 変換開始は親コンポーネントで処理 */}}
-              className="flex-1 py-2 px-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors font-medium"
-            >
-              MP3に変換
-            </button>
-          )}
         </div>
       </div>
     );

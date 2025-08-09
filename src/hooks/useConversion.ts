@@ -141,7 +141,6 @@ export const useConversion = (): UseConversionReturn => {
       
       return true;
     } catch (error) {
-      console.error('ファイル選択エラー:', error);
       setError(ERROR_MESSAGES.FILE_READ_FAILED);
       return false;
     }
@@ -189,7 +188,6 @@ export const useConversion = (): UseConversionReturn => {
       
       return true;
     } catch (error) {
-      console.error('ファイル選択エラー:', error);
       setError(ERROR_MESSAGES.FILE_READ_FAILED);
       return false;
     }
@@ -251,7 +249,6 @@ export const useConversion = (): UseConversionReturn => {
 
       return true;
     } catch (error) {
-      console.error('変換エラー:', error);
       
       // エラー詳細分析
       let errorMessage: string = ERROR_MESSAGES.CONVERSION_FAILED;
@@ -275,7 +272,6 @@ export const useConversion = (): UseConversionReturn => {
    */
   const downloadMp3 = useCallback(() => {
     if (!state.mp3File || !state.videoFile) {
-      console.warn('ダウンロード可能なMP3ファイルがありません');
       return;
     }
 
@@ -290,7 +286,6 @@ export const useConversion = (): UseConversionReturn => {
       link.click();
       document.body.removeChild(link);
     } catch (error) {
-      console.error('ダウンロードエラー:', error);
       setError('ダウンロードに失敗しました');
     }
   }, [state.mp3File, state.videoFile, setError]);
@@ -304,7 +299,7 @@ export const useConversion = (): UseConversionReturn => {
       try {
         URL.revokeObjectURL(state.mp3File.url);
       } catch (error) {
-        console.warn('Blob URLのクリーンアップエラー:', error);
+        // Cleanup error ignored
       }
     }
 
@@ -321,20 +316,17 @@ export const useConversion = (): UseConversionReturn => {
    * コンポーネントマウント・アンマウント時の処理
    */
   useEffect(() => {
-    // マウント時にリセット（ホットリロード対応）
     isUnmounted.current = false;
-    console.log('コンポーネントマウント: isUnmounted =', isUnmounted.current);
     
     return () => {
       isUnmounted.current = true;
-      console.log('コンポーネントアンマウント: isUnmounted =', isUnmounted.current);
       
       // Blob URLのクリーンアップ
       if (state.mp3File?.url) {
         try {
           URL.revokeObjectURL(state.mp3File.url);
         } catch (error) {
-          console.warn('アンマウント時のBlob URLクリーンアップエラー:', error);
+          // Cleanup error ignored
         }
       }
     };
@@ -349,14 +341,6 @@ export const useConversion = (): UseConversionReturn => {
   const canConvert = !!(state.videoFile && (isIdle || hasError));
   const canDownload = !!(state.mp3File && isCompleted);
   
-  // デバッグログ
-  console.log('フック状態デバッグ:', {
-    status: state.status,
-    hasVideoFile: !!state.videoFile,
-    isIdle,
-    canConvert,
-    videoFileName: state.videoFile?.name
-  });
 
   return {
     // 状態

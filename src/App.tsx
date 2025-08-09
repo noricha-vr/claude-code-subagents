@@ -18,16 +18,6 @@ import { ConversionStatus } from './types';
 function App() {
   const conversion = useConversion();
 
-  // 環境チェック（開発用）
-  useEffect(() => {
-    if (process.env.NODE_ENV === 'development') {
-      console.group('🔧 Environment Check');
-      console.log('Cross-Origin Isolated:', crossOriginIsolated);
-      console.log('SharedArrayBuffer Support:', typeof SharedArrayBuffer !== 'undefined');
-      console.log('Service Worker Support:', 'serviceWorker' in navigator);
-      console.groupEnd();
-    }
-  }, []);
 
   // 変換開始ハンドラー
   const handleStartConversion = () => {
@@ -83,7 +73,9 @@ function App() {
           </div>
 
           {/* 変換進捗領域 */}
-          {(conversion.status !== ConversionStatus.IDLE || conversion.hasError) && (
+          {(conversion.status === ConversionStatus.LOADING || 
+            conversion.status === ConversionStatus.PROCESSING || 
+            conversion.hasError) && (
             <div className="bg-white rounded-2xl shadow-xl p-6 md:p-8">
               <div className="mb-6">
                 <h2 className="text-xl font-semibold text-gray-800 mb-2">
