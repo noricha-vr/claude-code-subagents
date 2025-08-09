@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { ConversionStatus } from '../types';
+import { formatTimeRemaining } from '../utils/fileUtils';
 
 interface ConversionProgressProps {
   status: ConversionStatus;
@@ -16,58 +17,55 @@ export const ConversionProgress: React.FC<ConversionProgressProps> = ({
   estimatedTimeRemaining,
   fileName
 }) => {
-  // 進捗状況に応じたメッセージ
-  const getStatusMessage = (): string => {
-    switch (status) {
-      case ConversionStatus.LOADING:
-        return 'FFmpeg.wasmを初期化中...';
-      case ConversionStatus.PROCESSING:
-        return currentStep || 'MP3に変換中...';
-      case ConversionStatus.COMPLETED:
-        return '変換が完了しました！';
-      case ConversionStatus.ERROR:
-        return '変換中にエラーが発生しました';
-      default:
-        return '';
-    }
-  };
+  // メモ化された計算プロパティ（パフォーマンス最適化）
+  const memoizedValues = useMemo(() => {
+    // 進捗状況に応じたメッセージ
+    const getStatusMessage = (): string => {
+      switch (status) {
+        case ConversionStatus.LOADING:
+          return 'FFmpeg.wasmを初期化中...';
+        case ConversionStatus.PROCESSING:
+          return currentStep || 'MP3に変換中...';
+        case ConversionStatus.COMPLETED:
+          return '変換が完了しました！';
+        case ConversionStatus.ERROR:
+          return '変換中にエラーが発生しました';
+        default:
+          return '';
+      }
+    };
 
-  // 推定残り時間のフォーマット
-  const formatTimeRemaining = (seconds: number): string => {
-    if (seconds <= 0) return '';
-    
-    const minutes = Math.floor(seconds / 60);
-    const remainingSeconds = Math.floor(seconds % 60);
-    
-    if (minutes > 0) {
-      return `残り ${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
-    }
-    return `残り ${remainingSeconds}秒`;
-  };
+    // プログレスバーの色を決定
+    const getProgressColor = (): string => {
+      switch (status) {
+        case ConversionStatus.LOADING:
+          return 'bg-blue-500';
+        case ConversionStatus.PROCESSING:
+          return 'bg-green-500';
+        case ConversionStatus.COMPLETED:
+          return 'bg-green-600';
+        case ConversionStatus.ERROR:
+          return 'bg-red-500';
+        default:
+          return 'bg-gray-400';
+      }
+    };
 
-  // プログレスバーの色を決定
-  const getProgressColor = (): string => {
-    switch (status) {
-      case ConversionStatus.LOADING:
-        return 'bg-blue-500';
-      case ConversionStatus.PROCESSING:
-        return 'bg-green-500';
-      case ConversionStatus.COMPLETED:
-        return 'bg-green-600';
-      case ConversionStatus.ERROR:
-        return 'bg-red-500';
-      default:
-        return 'bg-gray-400';
-    }
-  };
+    // アニメーション用のクラス
+    const getAnimationClass = (): string => {
+      if (status === ConversionStatus.LOADING || status === ConversionStatus.PROCESSING) {
+        return 'animate-pulse';
+      }
+      return '';
+    };
 
-  // アニメーション用のクラス
-  const getAnimationClass = (): string => {
-    if (status === ConversionStatus.LOADING || status === ConversionStatus.PROCESSING) {
-      return 'animate-pulse';
-    }
-    return '';
-  };
+    return {
+      statusMessage: getStatusMessage(),
+      progressColor: getProgressColor(),
+      animationClass: getAnimationClass(),
+      formattedTimeRemaining: formatTimeRemaining(estimatedTimeRemaining)
+    };
+  }, [status, currentStep, estimatedTimeRemaining]);
 
   if (status === ConversionStatus.IDLE) {
     return null;
@@ -86,18 +84,18 @@ export const ConversionProgress: React.FC<ConversionProgressProps> = ({
       )}
 
       {/* 状況メッセージ */}
-      <div className={`mb-4 ${getAnimationClass()}`}>
+      <div className={`mb-4 ${memoizedValues.animationClass}`}>
         <p className="text-base font-medium text-gray-800 mb-2">
-          {getStatusMessage()}
+          {memoizedValues.statusMessage}
         </p>
         
         {/* 進捗率表示 */}
         {(status === ConversionStatus.LOADING || status === ConversionStatus.PROCESSING) && (
           <p className="text-sm text-gray-600">
             {Math.round(progress)}%
-            {estimatedTimeRemaining > 0 && (
+            {memoizedValues.formattedTimeRemaining && (
               <span className="ml-2">
-                ({formatTimeRemaining(estimatedTimeRemaining)})
+                ({memoizedValues.formattedTimeRemaining})
               </span>
             )}
           </p>
@@ -108,7 +106,7 @@ export const ConversionProgress: React.FC<ConversionProgressProps> = ({
       <div className="relative">
         <div className="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
           <div 
-            className={`h-full transition-all duration-300 ease-out ${getProgressColor()}`}
+            className={`h-full transition-all duration-300 ease-out ${memoizedValues.progressColor}`}
             style={{ 
               width: `${Math.min(Math.max(progress, 0), 100)}%`,
               transition: 'width 0.3s ease-out'

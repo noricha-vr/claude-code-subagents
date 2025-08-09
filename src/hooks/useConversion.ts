@@ -3,7 +3,7 @@
  * 変換状態管理、FFmpegサービス統合、進捗追跡、エラーハンドリング
  */
 
-import { useState, useCallback, useEffect, useRef } from 'react';
+import { useState, useCallback, useEffect, useRef, useMemo } from 'react';
 import type {
   ConversionState,
   ConversionProgress,
@@ -64,20 +64,38 @@ export const useConversion = (): UseConversionReturn => {
 
   /**
    * 状態を安全に更新（アンマウント後は更新しない）
+   * パフォーマンス最適化：不要な再レンダリングを防止
    */
   const safeSetState = useCallback((newState: Partial<ConversionState>) => {
     if (!isUnmounted.current) {
-      setState(prev => ({ ...prev, ...newState }));
+      setState(prev => {
+        // 浅い比較で実際に変更があるかチェック
+        const hasChanges = Object.keys(newState).some(
+          key => prev[key as keyof ConversionState] !== newState[key as keyof ConversionState]
+        );
+        return hasChanges ? { ...prev, ...newState } : prev;
+      });
     }
   }, []);
 
   /**
    * エラー状態を設定
+   * 詳細なエラー分類とログ記録を追加
    */
-  const setError = useCallback((errorMessage: string) => {
+  const setError = useCallback((errorMessage: string, errorCode?: string, recoverable: boolean = false) => {
+    // エラーログを記録（開発環境のみ）
+    if (process.env.NODE_ENV === 'development') {
+      console.error('[useConversion] Error:', {
+        message: errorMessage,
+        code: errorCode,
+        recoverable,
+        timestamp: new Date().toISOString()
+      });
+    }
+    
     safeSetState({
       status: ConversionStatus.ERROR,
-      errorMessage,
+      errorMessage: recoverable ? `${errorMessage} (再試行可能)` : errorMessage,
       progress: null
     });
   }, [safeSetState]);
@@ -111,7 +129,10 @@ export const useConversion = (): UseConversionReturn => {
       const validation: FileValidationResult = await validateFile(file);
       
       if (!validation.isValid) {
-        setError(validation.errorMessage || ERROR_MESSAGES.UNSUPPORTED_FORMAT);
+        // より具体的なエラー分類
+        const errorCode = validation.errorMessage?.includes('サイズ') ? 'FILE_TOO_LARGE' :
+                         validation.errorMessage?.includes('形式') ? 'UNSUPPORTED_FORMAT' : 'VALIDATION_ERROR';
+        setError(validation.errorMessage || ERROR_MESSAGES.UNSUPPORTED_FORMAT, errorCode, true);
         return false;
       }
       
@@ -126,7 +147,15 @@ export const useConversion = (): UseConversionReturn => {
       
       return true;
     } catch (error) {
-      setError(ERROR_MESSAGES.FILE_READ_FAILED);
+      // ファイル読み込みエラーの詳細分析
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      if (errorMessage.includes('QuotaExceeded')) {
+        setError('ストレージ容量が不足しています。ブラウザのキャッシュをクリアしてください。', 'STORAGE_QUOTA_EXCEEDED', true);
+      } else if (errorMessage.includes('SecurityError')) {
+        setError('ファイルの読み込み権限がありません。', 'FILE_ACCESS_DENIED', false);
+      } else {
+        setError(ERROR_MESSAGES.FILE_READ_FAILED, 'FILE_READ_ERROR', true);
+      }
       return false;
     }
   }, [setError, safeSetState]);
@@ -153,7 +182,9 @@ export const useConversion = (): UseConversionReturn => {
       const validation: FileValidationResult = await validateFiles(files);
       
       if (!validation.isValid) {
-        setError(validation.errorMessage || ERROR_MESSAGES.UNSUPPORTED_FORMAT);
+        // 複数ファイル選択時の詳細なエラー情報
+        const errorCode = Array.from(files).length > 1 ? 'MULTIPLE_FILES_INVALID' : 'VALIDATION_ERROR';
+        setError(validation.errorMessage || ERROR_MESSAGES.UNSUPPORTED_FORMAT, errorCode, true);
         return false;
       }
       
@@ -168,7 +199,15 @@ export const useConversion = (): UseConversionReturn => {
       
       return true;
     } catch (error) {
-      setError(ERROR_MESSAGES.FILE_READ_FAILED);
+      // ファイル選択エラーの詳細分析
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      if (errorMessage.includes('QuotaExceeded')) {
+        setError('ストレージ容量が不足しています。ブラウザのキャッシュをクリアしてください。', 'STORAGE_QUOTA_EXCEEDED', true);
+      } else if (errorMessage.includes('SecurityError')) {
+        setError('ファイルの読み込み権限がありません。', 'FILE_ACCESS_DENIED', false);
+      } else {
+        setError(ERROR_MESSAGES.FILE_READ_FAILED, 'FILE_READ_ERROR', true);
+      }
       return false;
     }
   }, [setError, safeSetState]);
@@ -312,15 +351,26 @@ export const useConversion = (): UseConversionReturn => {
     };
   }, [state.mp3File?.url]);
 
-  // 計算プロパティ
-  const isIdle = state.status === ConversionStatus.IDLE;
-  const isLoading = state.status === ConversionStatus.LOADING;
-  const isProcessing = state.status === ConversionStatus.PROCESSING;
-  const isCompleted = state.status === ConversionStatus.COMPLETED;
-  const hasError = state.status === ConversionStatus.ERROR;
-  const canConvert = !!(state.videoFile && (isIdle || hasError));
-  const canDownload = !!(state.mp3File && isCompleted);
-  
+  // 計算プロパティ（メモ化でパフォーマンス最適化）
+  const computedProperties = useMemo(() => {
+    const isIdle = state.status === ConversionStatus.IDLE;
+    const isLoading = state.status === ConversionStatus.LOADING;
+    const isProcessing = state.status === ConversionStatus.PROCESSING;
+    const isCompleted = state.status === ConversionStatus.COMPLETED;
+    const hasError = state.status === ConversionStatus.ERROR;
+    const canConvert = !!(state.videoFile && (isIdle || hasError));
+    const canDownload = !!(state.mp3File && isCompleted);
+    
+    return {
+      isIdle,
+      isLoading,
+      isProcessing,
+      isCompleted,
+      hasError,
+      canConvert,
+      canDownload
+    };
+  }, [state.status, state.videoFile, state.mp3File]);
 
   return {
     // 状態
@@ -334,13 +384,7 @@ export const useConversion = (): UseConversionReturn => {
     downloadMp3,
     reset,
     
-    // 計算プロパティ
-    isIdle,
-    isLoading,
-    isProcessing,
-    isCompleted,
-    hasError,
-    canConvert,
-    canDownload
+    // 計算プロパティ（メモ化済み）
+    ...computedProperties
   };
 };

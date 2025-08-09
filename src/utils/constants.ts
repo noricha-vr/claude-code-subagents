@@ -138,3 +138,37 @@ export const generateMp3Filename = (originalFilename: string): string => {
   const nameWithoutExt = removeFileExtension(originalFilename);
   return `${nameWithoutExt}.mp3`;
 };
+
+/**
+ * エラーコードに基づく回復可能性の判定
+ */
+export const ERROR_RECOVERY_MAP = {
+  'FILE_TOO_LARGE': true,
+  'UNSUPPORTED_FORMAT': true,
+  'FILE_READ_ERROR': true,
+  'STORAGE_QUOTA_EXCEEDED': true,
+  'FILE_ACCESS_DENIED': false,
+  'MEMORY_ERROR': true,
+  'NETWORK_ERROR': true,
+  'TIMEOUT_ERROR': true,
+  'DOWNLOAD_BLOCKED': true,
+  'DOWNLOAD_FAILED': true,
+  'FFMPEG_LOAD_FAILED': true,
+  'CONVERSION_ERROR': false,
+  'SHARED_ARRAY_BUFFER_UNAVAILABLE': false,
+  'CROSS_ORIGIN_ISOLATION_REQUIRED': false,
+} as const;
+
+/**
+ * パフォーマンス監視の設定
+ */
+export const PERFORMANCE_CONFIG = {
+  PROGRESS_THROTTLE_MS: 100,
+  METADATA_TIMEOUT_BASE_MS: 5000,
+  METADATA_TIMEOUT_PER_MB: 1000,
+  PREVIEW_TIMEOUT_BASE_MS: 10000,
+  PREVIEW_TIMEOUT_PER_MB: 1500,
+  MAX_METADATA_TIMEOUT_MS: 20000,
+  MAX_PREVIEW_TIMEOUT_MS: 30000,
+  MEMORY_WARNING_THRESHOLD_MB: 100,
+} as const;

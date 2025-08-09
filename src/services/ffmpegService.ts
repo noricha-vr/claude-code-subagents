@@ -29,6 +29,9 @@ export class FFmpegService {
   private ffmpeg: FFmpeg | null = null;
   private isLoaded = false;
   private isLoading = false;
+  private loadPromise: Promise<void> | null = null;
+  private lastProgressUpdate = 0;
+  private readonly PROGRESS_THROTTLE_MS = 100;
 
   private constructor() {
     this.ffmpeg = new FFmpeg();
@@ -60,15 +63,29 @@ export class FFmpegService {
 
   /**
    * FFmpeg.wasmの読み込みと初期化
+   * パフォーマンス最適化：重複読み込み防止とプロミス再利用
    */
   public async loadFFmpeg(
     onProgress?: (progress: ConversionProgress) => void
   ): Promise<void> {
     if (this.isLoaded) return;
-    if (this.isLoading) {
-      throw new Error('FFmpeg.wasmは既に読み込み中です');
+    
+    // 既に読み込み中の場合は同じプロミスを返す
+    if (this.isLoading && this.loadPromise) {
+      return this.loadPromise;
     }
 
+    // 読み込みプロミスを作成・保存
+    this.loadPromise = this._performLoad(onProgress);
+    return this.loadPromise;
+  }
+
+  /**
+   * 実際の読み込み処理（内部メソッド）
+   */
+  private async _performLoad(
+    onProgress?: (progress: ConversionProgress) => void
+  ): Promise<void> {
     try {
       this.isLoading = true;
 
@@ -129,6 +146,7 @@ export class FFmpegService {
       throw appError;
     } finally {
       this.isLoading = false;
+      this.loadPromise = null;
     }
   }
 
@@ -152,6 +170,9 @@ export class FFmpegService {
     const outputFileName = 'output.mp3';
 
     try {
+      // メモリ使用量監視（開始時）
+      this._logMemoryUsage('conversion start');
+
       // 進捗通知: ファイル読み込み開始
       onProgress?.({
         percentage: 0,
@@ -171,12 +192,11 @@ export class FFmpegService {
         startTime
       });
 
-      // プログレス監視の設定
-      let lastProgressTime = Date.now();
+      // プログレス監視の設定（最適化：スロットリング強化）
       this.ffmpeg.on('progress', ({ progress, time }) => {
         const now = Date.now();
-        // 進捗通知を適度に制限（100ms以上の間隔）
-        if (now - lastProgressTime >= 100) {
+        // 進捗通知を適度に制限（スロットリング）
+        if (now - this.lastProgressUpdate >= this.PROGRESS_THROTTLE_MS) {
           const percentage = Math.min(Math.max(progress * 80 + 20, 20), 95);
           const estimatedDuration = videoFile.duration || 0;
           const processedDuration = time / 1000000; // マイクロ秒を秒に変換
@@ -194,7 +214,7 @@ export class FFmpegService {
             estimatedTimeLeft
           });
 
-          lastProgressTime = now;
+          this.lastProgressUpdate = now;
         }
       });
 
@@ -223,11 +243,8 @@ export class FFmpegService {
       }
 
       // Blobを作成してオブジェクトURLを生成（SharedArrayBuffer対応）
-      // 新しいArrayBufferを作成してデータをコピー
-      const normalBuffer = new ArrayBuffer(mp3Data.length);
-      const normalView = new Uint8Array(normalBuffer);
-      normalView.set(mp3Data);
-      const mp3Blob = new Blob([normalView], { type: 'audio/mpeg' });
+      // メモリ最適化：効率的なコピー処理
+      const mp3Blob = this._createOptimizedBlob(mp3Data);
       const mp3Url = URL.createObjectURL(mp3Blob);
 
       // MP3ファイル情報を作成
@@ -252,6 +269,9 @@ export class FFmpegService {
         currentStep: CONVERSION_STEPS.COMPLETED,
         startTime
       });
+
+      // メモリ使用量監視（完了時）
+      this._logMemoryUsage('conversion complete');
 
       return mp3File;
 
@@ -300,6 +320,36 @@ export class FFmpegService {
    */
   public isFFmpegLoading(): boolean {
     return this.isLoading;
+  }
+
+  /**
+   * メモリ最適化されたBlob作成
+   */
+  private _createOptimizedBlob(data: Uint8Array): Blob {
+    // SharedArrayBufferの場合は新しいArrayBufferを作成してデータをコピー
+    if (data.buffer instanceof SharedArrayBuffer) {
+      const normalBuffer = new ArrayBuffer(data.length);
+      const normalView = new Uint8Array(normalBuffer);
+      normalView.set(data);
+      return new Blob([normalBuffer], { type: 'audio/mpeg' });
+    } else {
+      // 通常のArrayBufferの場合はそのまま使用
+      return new Blob([data.buffer], { type: 'audio/mpeg' });
+    }
+  }
+
+  /**
+   * メモリ使用状況の監視（開発環境のみ）
+   */
+  private _logMemoryUsage(context: string): void {
+    if (process.env.NODE_ENV === 'development' && 'memory' in performance) {
+      const memInfo = (performance as any).memory;
+      console.log(`[FFmpegService] Memory usage at ${context}:`, {
+        used: Math.round(memInfo.usedJSHeapSize / 1024 / 1024) + 'MB',
+        total: Math.round(memInfo.totalJSHeapSize / 1024 / 1024) + 'MB',
+        limit: Math.round(memInfo.jsHeapSizeLimit / 1024 / 1024) + 'MB'
+      });
+    }
   }
 }
 
