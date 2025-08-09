@@ -1,8 +1,8 @@
 # 動画→MP3変換アプリ実装状況
 
 ## プロジェクト基本情報
-- 進捗: 4/12 (Step 4 完了済み - Step 5 実装準備中)
-- 更新日時: 2025-08-09 10:45
+- 進捗: 5/12 (Step 5 完了 - Step 6 実装開始)
+- 更新日時: 2025-08-09 11:00
 - 実装対象: 動画→MP3変換ウェブアプリケーション
 
 ## 実装ステップ
@@ -27,15 +27,15 @@
 
 ### Step 4: FFmpeg.wasmサービス実装 ✅
 - 対象ファイル: src/services/ffmpegService.ts
-- 内容: FFmpeg.wasmによるMP3変換処理
-- 技術要素: FFmpeg.wasm、Web Worker実装
-- 完了: [x] 完了済み
+- 内容: FFmpeg.wasmによるMP3変換処理、Web Worker対応、プログレス監視
+- 技術要素: FFmpeg.wasm v0.12.15、Web Worker、SharedArrayBuffer、Cross-Origin Isolation
+- 完了: [x] 完了済み (2025-08-09)
 
-### Step 5: Reactカスタムフック作成
-- 対象ファイル: src/hooks/useConversion.ts
-- 内容: 変換状態管理、進捗追跡ロジック
-- 技術要素: React hooks、状態管理、副作用管理
-- 完了: [ ]
+### Step 5: Reactカスタムフック作成 ✅
+- 対象ファイル: src/hooks/useConversion.ts, src/hooks/index.ts, src/utils/fileUtils.ts, src/components/ConversionTest.tsx
+- 内容: 変換状態管理、FFmpegサービス統合、進捗追跡ロジック、ファイル検証ユーティリティ
+- 技術要素: React hooks、useState、useCallback、useEffect、非同期処理管理、File API、Blob URL
+- 完了: [x] 完了済み (2025-08-09)
 
 ### Step 6: ファイルアップロードコンポーネント
 - 対象ファイル: src/components/FileUploader.tsx
@@ -309,6 +309,21 @@ Step 4のFFmpeg.wasm実装に必要なすべての型定義とユーティリテ
 - 変更ファイル: src/services/ffmpegService.ts, src/services/ffmpegWorkerService.ts, src/services/ffmpegWorker.ts, src/services/index.ts, vite.config.ts
 - 備考: ブラウザテスト完了（FFmpeg.wasm読み込み100%成功、Step 5のReactフック実装準備完了）
 
+### Step 5 実装結果
+- useConversionカスタムフック（src/hooks/useConversion.ts）の包括的な実装完了
+- ファイル検証ユーティリティ（src/utils/fileUtils.ts）の実装（動画メタデータ取得、プレビュー生成）
+- フックインデックスファイル（src/hooks/index.ts）で型安全なエクスポート
+- テストコンポーネント（src/components/ConversionTest.tsx）で動作確認UI実装
+- 変換状態管理（ConversionState）とライフサイクル管理の完全実装
+- FFmpegサービスとの統合とプログレス追跡（リアルタイム更新）
+- エラーハンドリングと回復処理（詳細なエラー分析・分類）
+- ファイル検証と前処理（MIME type正規化、サイズ制限、形式チェック）
+- メモリリーク防止のクリーンアップ処理（Blob URL自動管理）
+- Reactライフサイクルに準拠した非同期処理管理
+- 型安全なインターフェースと計算プロパティ（isIdle, canConvert等）
+- 変更ファイル: src/hooks/useConversion.ts, src/hooks/index.ts, src/utils/fileUtils.ts, src/components/ConversionTest.tsx, src/App.tsx
+- 備考: ブラウザテスト実行中（フック正常動作確認、UI表示完了、Step 6のコンポーネント実装準備完了）
+
 ## 👁️ レビュー結果
 
 ### Step 4 レビュー
@@ -343,7 +358,7 @@ Step 4のFFmpeg.wasm実装に必要なすべての型定義とユーティリテ
 Step 5のReactフック実装に必要なすべてのFFmpegサービスが完成しており、即座に次のステップに進むことができます。
 
 ### コミット結果（合格時）
-- Hash: [コミット実行準備中]
+- Hash: 757b0d2
 - Message: feat: Step 4完了 - FFmpeg.wasmサービス実装とWeb Worker対応
 
 ## ⏭️ 次のステップ（Step 5）

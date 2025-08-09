@@ -4,9 +4,12 @@ import { ConversionStatus, type ConversionState } from './types';
 import { APP_CONFIG, formatFileSize, formatDuration } from './utils/constants';
 // FFmpegサービステスト
 import { createFFmpegService } from './services';
+// useConversionフックテスト
+import { ConversionTest } from './components/ConversionTest';
 
 function App() {
   const [count, setCount] = useState(0);
+  const [showConversionTest, setShowConversionTest] = useState(false);
 
   // 型定義とユーティリティ関数の動作テスト
   const testUtilities = () => {
@@ -48,6 +51,25 @@ function App() {
     }
   };
 
+  // useConversionフックテストの表示切り替え
+  if (showConversionTest) {
+    return (
+      <div className="min-h-screen bg-gray-50 py-8">
+        <div className="max-w-4xl mx-auto px-4">
+          <div className="mb-4">
+            <button
+              onClick={() => setShowConversionTest(false)}
+              className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600 transition-colors"
+            >
+              ← 戻る
+            </button>
+          </div>
+          <ConversionTest />
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center">
       <div className="text-center">
@@ -58,7 +80,7 @@ function App() {
           Convert video files to MP3 directly in your browser
         </p>
         <div className="bg-white p-6 rounded-lg shadow-lg">
-          <p className="text-sm text-gray-500 mb-4">Step 4: FFmpeg.wasmサービス実装中...</p>
+          <p className="text-sm text-gray-500 mb-4">Step 5: useConversionフック実装完了</p>
           <div className="space-y-3">
             <button
               onClick={() => setCount((count) => count + 1)}
@@ -78,12 +100,19 @@ function App() {
             >
               FFmpeg.wasmサービステスト
             </button>
+            <button
+              onClick={() => setShowConversionTest(true)}
+              className="px-6 py-2 bg-orange-500 text-white rounded-md hover:bg-orange-600 transition-colors block w-full"
+            >
+              useConversionフックテスト
+            </button>
           </div>
           <div className="mt-4 text-xs text-gray-400">
             <p>✅ TypeScript型定義完了</p>
             <p>✅ ユーティリティ関数完了</p>
             <p>✅ 定数定義完了</p>
-            <p>🔄 FFmpeg.wasmサービス実装</p>
+            <p>✅ FFmpeg.wasmサービス実装完了</p>
+            <p>✅ useConversionフック実装完了</p>
             <p>⚠️ ブラウザコンソールでテスト結果を確認してください</p>
           </div>
         </div>
