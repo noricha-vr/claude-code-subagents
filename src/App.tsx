@@ -1,170 +1,167 @@
-import { useState } from 'react';
-// 型定義とユーティリティの動作確認
-import { ConversionStatus, type ConversionState } from './types';
-import { APP_CONFIG, formatFileSize, formatDuration } from './utils/constants';
-// FFmpegサービステスト
-import { createFFmpegService } from './services';
-// useConversionフックテスト
-import { ConversionTest } from './components/ConversionTest';
-// FileUploaderコンポーネントテスト
-import { FileUploader } from './components/FileUploader';
+import React, { useEffect } from 'react';
+import { useConversion } from './hooks';
+import { FileUploader, ConversionProgress, DownloadButton } from './components';
+import { ConversionStatus } from './types';
 
+/**
+ * Video to MP3 Converter Application
+ * 
+ * ブラウザ内で動画ファイルをMP3に変換するWebアプリケーション
+ * FFmpeg.wasmを使用した完全クライアントサイド処理
+ * 
+ * 機能:
+ * - ドラッグ&ドロップによるファイル選択
+ * - リアルタイム変換進捗表示
+ * - MP3ファイルのダウンロード
+ * - Cross-Origin Isolation環境対応
+ */
 function App() {
-  const [count, setCount] = useState(0);
-  const [showConversionTest, setShowConversionTest] = useState(false);
-  const [showFileUploaderTest, setShowFileUploaderTest] = useState(false);
+  const conversion = useConversion();
 
-  // 型定義とユーティリティ関数の動作テスト
-  const testUtilities = () => {
-    console.log('=== 型定義・ユーティリティ動作テスト ===');
-    console.log('APP_CONFIG:', APP_CONFIG);
-    console.log('ConversionStatus.IDLE:', ConversionStatus.IDLE);
-    console.log('formatFileSize(1048576):', formatFileSize(1048576)); // 1MB
-    console.log('formatDuration(125):', formatDuration(125)); // 2:05
-    
-    const testState: ConversionState = {
-      status: ConversionStatus.IDLE,
-      videoFile: null,
-      mp3File: null,
-      progress: null,
-      errorMessage: null
-    };
-    console.log('Test ConversionState:', testState);
-  };
+  // 環境チェック（開発用）
+  useEffect(() => {
+    if (process.env.NODE_ENV === 'development') {
+      console.group('🔧 Environment Check');
+      console.log('Cross-Origin Isolated:', crossOriginIsolated);
+      console.log('SharedArrayBuffer Support:', typeof SharedArrayBuffer !== 'undefined');
+      console.log('Service Worker Support:', 'serviceWorker' in navigator);
+      console.groupEnd();
+    }
+  }, []);
 
-  // FFmpeg.wasmサービスの動作テスト
-  const testFFmpegService = async () => {
-    console.log('=== FFmpeg.wasmサービス動作テスト ===');
-    const ffmpegService = createFFmpegService();
-    
-    // 環境チェック
-    console.log('Cross-Origin Isolation:', crossOriginIsolated);
-    console.log('SharedArrayBuffer support:', typeof SharedArrayBuffer !== 'undefined');
-    
-    try {
-      // FFmpegロードテスト
-      console.log('FFmpeg.wasmを読み込み中...');
-      await ffmpegService.loadFFmpeg((progress) => {
-        console.log(`読み込み進捗: ${progress.percentage}% - ${progress.currentStep}`);
-      });
-      console.log('FFmpeg.wasm読み込み完了！');
-      console.log('FFmpeg読み込み済み:', ffmpegService.isFFmpegLoaded());
-    } catch (error) {
-      console.error('FFmpeg.wasmテストエラー:', error);
+  // 変換開始ハンドラー
+  const handleStartConversion = () => {
+    if (conversion.canConvert) {
+      conversion.convertToMp3();
     }
   };
 
-  // FileUploaderコンポーネントテストの表示切り替え
-  if (showFileUploaderTest) {
-    return (
-      <div className="min-h-screen bg-gray-50 py-8">
-        <div className="max-w-4xl mx-auto px-4">
-          <div className="mb-4">
-            <button
-              onClick={() => setShowFileUploaderTest(false)}
-              className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600 transition-colors"
-            >
-              ← 戻る
-            </button>
-          </div>
-          
-          <div className="bg-white rounded-lg shadow-lg p-6">
-            <h1 className="text-2xl font-bold text-gray-900 mb-6">
-              FileUploader テスト
-            </h1>
-            <p className="text-gray-600 mb-6">
-              ドラッグ&ドロップまたはファイル選択でMP4ファイルをアップロードしてください。
-            </p>
-            
-            <FileUploader className="max-w-2xl mx-auto" />
-            
-            <div className="mt-6 text-sm text-gray-500">
-              <p>✅ ドラッグ&ドロップ対応</p>
-              <p>✅ ファイル選択ボタン</p>
-              <p>✅ ファイル検証とエラー表示</p>
-              <p>✅ アップロードされたファイル情報の表示</p>
-              <p>✅ TailwindCSSでのスタイリング</p>
-              <p>⚠️ 動画ファイルを選択してテストしてください</p>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  // useConversionフックテストの表示切り替え
-  if (showConversionTest) {
-    return (
-      <div className="min-h-screen bg-gray-50 py-8">
-        <div className="max-w-4xl mx-auto px-4">
-          <div className="mb-4">
-            <button
-              onClick={() => setShowConversionTest(false)}
-              className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600 transition-colors"
-            >
-              ← 戻る
-            </button>
-          </div>
-          <ConversionTest />
-        </div>
-      </div>
-    );
-  }
-
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-      <div className="text-center">
-        <h1 className="text-4xl font-bold text-gray-900 mb-8">
-          Video to MP3 Converter
-        </h1>
-        <p className="text-lg text-gray-600 mb-4">
-          Convert video files to MP3 directly in your browser
-        </p>
-        <div className="bg-white p-6 rounded-lg shadow-lg">
-          <p className="text-sm text-gray-500 mb-4">Step 6: FileUploaderコンポーネント実装完了</p>
-          <div className="space-y-3">
-            <button
-              onClick={() => setCount((count) => count + 1)}
-              className="px-6 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors block w-full"
-            >
-              Count is {count}
-            </button>
-            <button
-              onClick={testUtilities}
-              className="px-6 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 transition-colors block w-full"
-            >
-              型定義・ユーティリティ動作テスト
-            </button>
-            <button
-              onClick={testFFmpegService}
-              className="px-6 py-2 bg-purple-500 text-white rounded-md hover:bg-purple-600 transition-colors block w-full"
-            >
-              FFmpeg.wasmサービステスト
-            </button>
-            <button
-              onClick={() => setShowConversionTest(true)}
-              className="px-6 py-2 bg-orange-500 text-white rounded-md hover:bg-orange-600 transition-colors block w-full"
-            >
-              useConversionフックテスト
-            </button>
-            <button
-              onClick={() => setShowFileUploaderTest(true)}
-              className="px-6 py-2 bg-indigo-500 text-white rounded-md hover:bg-indigo-600 transition-colors block w-full"
-            >
-              FileUploaderコンポーネントテスト
-            </button>
-          </div>
-          <div className="mt-4 text-xs text-gray-400">
-            <p>✅ TypeScript型定義完了</p>
-            <p>✅ ユーティリティ関数完了</p>
-            <p>✅ 定数定義完了</p>
-            <p>✅ FFmpeg.wasmサービス実装完了</p>
-            <p>✅ useConversionフック実装完了</p>
-            <p>✅ FileUploaderコンポーネント実装完了</p>
-            <p>⚠️ ブラウザコンソールでテスト結果を確認してください</p>
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
+      {/* ヘッダー */}
+      <header className="bg-white/80 backdrop-blur-sm border-b border-gray-200">
+        <div className="max-w-4xl mx-auto px-4 py-6">
+          <div className="text-center">
+            <h1 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-2">
+              Video to MP3 Converter
+            </h1>
+            <p className="text-gray-600 text-sm md:text-base">
+              Convert video files to MP3 directly in your browser - No server upload required
+            </p>
           </div>
         </div>
-      </div>
+      </header>
+
+      {/* メインコンテンツ */}
+      <main className="max-w-4xl mx-auto px-4 py-8">
+        <div className="space-y-8">
+          
+          {/* ファイルアップロード領域 */}
+          <div className="bg-white rounded-2xl shadow-xl p-6 md:p-8">
+            <div className="mb-6">
+              <h2 className="text-xl font-semibold text-gray-800 mb-2">
+                Step 1: Select Video File
+              </h2>
+              <p className="text-gray-600 text-sm">
+                Choose a video file to convert to MP3 format (128kbps)
+              </p>
+            </div>
+            
+            <FileUploader />
+
+            {/* ファイル選択後の変換ボタン */}
+            {conversion.canConvert && conversion.status === ConversionStatus.IDLE && (
+              <div className="mt-6 text-center">
+                <button
+                  onClick={handleStartConversion}
+                  className="px-8 py-3 bg-gradient-to-r from-blue-500 to-purple-600 text-white font-semibold rounded-xl hover:from-blue-600 hover:to-purple-700 transform hover:scale-105 transition-all duration-200 shadow-lg"
+                >
+                  🎵 Start MP3 Conversion
+                </button>
+              </div>
+            )}
+          </div>
+
+          {/* 変換進捗領域 */}
+          {(conversion.status !== ConversionStatus.IDLE || conversion.hasError) && (
+            <div className="bg-white rounded-2xl shadow-xl p-6 md:p-8">
+              <div className="mb-6">
+                <h2 className="text-xl font-semibold text-gray-800 mb-2">
+                  Step 2: Conversion Progress
+                </h2>
+                <p className="text-gray-600 text-sm">
+                  Monitor the conversion process in real-time
+                </p>
+              </div>
+              
+              <ConversionProgress />
+            </div>
+          )}
+
+          {/* ダウンロード領域 */}
+          {conversion.status === ConversionStatus.COMPLETED && (
+            <div className="bg-white rounded-2xl shadow-xl p-6 md:p-8">
+              <div className="mb-6">
+                <h2 className="text-xl font-semibold text-gray-800 mb-2">
+                  Step 3: Download MP3
+                </h2>
+                <p className="text-gray-600 text-sm">
+                  Your MP3 file is ready for download
+                </p>
+              </div>
+              
+              <DownloadButton />
+
+              {/* 新しいファイル変換ボタン */}
+              <div className="mt-6 text-center">
+                <button
+                  onClick={conversion.reset}
+                  className="px-6 py-2 bg-gray-100 text-gray-700 font-medium rounded-lg hover:bg-gray-200 transition-colors"
+                >
+                  Convert Another File
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* エラー表示 */}
+          {conversion.hasError && (
+            <div className="bg-red-50 border border-red-200 rounded-2xl p-6">
+              <div className="flex items-start gap-3">
+                <div className="flex-shrink-0 text-red-500 text-xl">⚠️</div>
+                <div>
+                  <h3 className="font-semibold text-red-800 mb-1">Conversion Error</h3>
+                  <p className="text-red-700 text-sm mb-3">
+                    {conversion.state.errorMessage || 'An unknown error occurred during conversion.'}
+                  </p>
+                  <button
+                    onClick={conversion.reset}
+                    className="px-4 py-2 bg-red-100 text-red-800 font-medium rounded-lg hover:bg-red-200 transition-colors text-sm"
+                  >
+                    Try Again
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+          
+        </div>
+      </main>
+
+      {/* フッター */}
+      <footer className="mt-16 pb-8">
+        <div className="max-w-4xl mx-auto px-4 text-center">
+          <div className="bg-white/50 rounded-xl p-6 text-sm text-gray-600">
+            <p className="mb-2">
+              <span className="font-medium">✨ Features:</span> Browser-only processing • No server upload • 
+              Cross-Origin Isolation enabled • FFmpeg.wasm powered
+            </p>
+            <p className="text-xs text-gray-500">
+              Best experience on Chrome with hardware acceleration enabled
+            </p>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }
