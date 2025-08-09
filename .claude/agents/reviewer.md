@@ -67,7 +67,7 @@ chore: Step 7完了 - 不要なコード削除
 
 ## 実行例
 ```bash
-@reviewer "直前の実装をレビュー"
+@agent-reviewer "直前の実装をレビュー"
 # → レビューしてcontext.mdに結果を追記
 # → 合格時は自動的にgit commit
 ```

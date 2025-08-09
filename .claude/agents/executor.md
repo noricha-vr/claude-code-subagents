@@ -33,7 +33,7 @@ color: blue
 
 ## 実行例
 ```bash
-@executor "docs/context.mdのStep 1を実装"
+@agent-executor "docs/context.mdのStep 1を実装"
 # → 実装してcontext.mdに結果を追記
 ```
 

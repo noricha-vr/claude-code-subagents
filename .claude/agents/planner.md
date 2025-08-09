@@ -44,7 +44,7 @@ color: green
 
 ## 実行例
 ```bash
-@planner "動画→MP3変換アプリを作成"
+@agent-planner "動画→MP3変換アプリを作成"
 # → docs/context.mdに計画を出力
 ```
 
