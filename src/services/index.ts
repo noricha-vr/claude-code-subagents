@@ -1,6 +1,6 @@
 /**
- * FFmpeg.wasmサービスの統一エクスポート
- * 通常版・Web Worker版を環境に応じて選択
+ * FFmpeg.wasm service unified export
+ * Selects normal version or Web Worker version based on environment
  */
 
 import { FFmpegService } from './ffmpegService';
@@ -12,7 +12,7 @@ import type {
 } from '../types';
 
 /**
- * FFmpegサービスのインターフェース
+ * FFmpeg service interface
  */
 export interface IFFmpegService {
   loadFFmpeg(onProgress?: (progress: ConversionProgress) => void): Promise<void>;
@@ -23,7 +23,7 @@ export interface IFFmpegService {
 }
 
 /**
- * Web Worker使用可否の判定
+ * Determine Web Worker support
  */
 const isWebWorkerSupported = (): boolean => {
   try {
@@ -34,26 +34,26 @@ const isWebWorkerSupported = (): boolean => {
 };
 
 /**
- * 環境に応じた最適なFFmpegサービスを選択
- * @param useWorker Web Workerを強制使用するフラグ（デフォルト: 自動判定）
+ * Select optimal FFmpeg service based on environment
+ * @param useWorker Flag to force Web Worker usage (default: auto-detect)
  */
 export function createFFmpegService(useWorker?: boolean): IFFmpegService {
   const shouldUseWorker = useWorker ?? isWebWorkerSupported();
   
   if (shouldUseWorker) {
-    console.info('FFmpegWorkerServiceを使用します（Web Worker経由）');
+    console.info('Using FFmpegWorkerService (via Web Worker)');
     return FFmpegWorkerService.getInstance();
   } else {
-    console.info('FFmpegServiceを使用します（メインスレッド）');
+    console.info('Using FFmpegService (main thread)');
     return FFmpegService.getInstance();
   }
 }
 
 /**
- * デフォルトFFmpegサービス（自動選択）
+ * Default FFmpeg service (auto-select)
  */
 export const defaultFFmpegService = createFFmpegService();
 
-// 個別サービスクラスもエクスポート
+// Export individual service classes
 export { FFmpegService } from './ffmpegService';
 export { FFmpegWorkerService } from './ffmpegWorkerService';

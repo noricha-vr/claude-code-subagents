@@ -8,7 +8,7 @@ export function NetworkStatus() {
     const handleOnline = () => {
       setIsOnline(true);
       setShowStatus(true);
-      // 3秒後にメッセージを非表示
+      // Hide message after 3 seconds
       setTimeout(() => setShowStatus(false), 3000);
     };
 
@@ -20,7 +20,7 @@ export function NetworkStatus() {
     window.addEventListener('online', handleOnline);
     window.addEventListener('offline', handleOffline);
 
-    // 初期表示で5秒間だけステータスを表示
+    // Show status for only 5 seconds on initial display
     setShowStatus(true);
     const timer = setTimeout(() => setShowStatus(false), 5000);
 
@@ -60,9 +60,9 @@ export function NetworkStatus() {
           </svg>
         )}
         {isOnline ? (
-          <>オンライン - アプリは完全に機能します</>
+          <>Online - App fully functional</>
         ) : (
-          <>オフライン - ローカル変換は引き続き利用できます</>
+          <>Offline - Local conversion still available</>
         )}
       </div>
     </div>

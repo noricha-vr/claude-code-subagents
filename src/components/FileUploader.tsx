@@ -1,6 +1,6 @@
 /**
- * FileUploader - ドラッグ&ドロップ対応ファイルアップロードコンポーネント
- * 動画ファイルの選択、検証、プレビュー表示機能
+ * FileUploader - Drag & drop file upload component
+ * Video file selection, validation, and preview display
  */
 
 import React, { useState, useRef, useCallback } from 'react';
@@ -9,26 +9,26 @@ import { formatFileSize, formatDuration } from '../utils/fileUtils';
 import { SUPPORTED_VIDEO_TYPES } from '../utils/constants';
 
 /**
- * FileUploaderコンポーネントのProps
+ * FileUploader component Props
  */
 interface FileUploaderProps {
-  /** クラス名（TailwindCSS） */
+  /** Class name (TailwindCSS) */
   className?: string;
-  /** 無効状態 */
+  /** Disabled state */
   disabled?: boolean;
-  /** useConversion フックの戻り値 */
+  /** useConversion hook return value */
   conversion: UseConversionReturn;
 }
 
 /**
- * ドラッグ&ドロップ対応ファイルアップローダー
+ * Drag & drop file uploader
  */
 export const FileUploader: React.FC<FileUploaderProps> = ({
   className = '',
   disabled = false,
   conversion
 }) => {
-  // 受け取ったconversionから必要な値を取得
+  // Get required values from the received conversion
   const { 
     state,
     selectFiles,
@@ -37,24 +37,24 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
     hasError
   } = conversion;
 
-  // ドラッグ&ドロップの状態管理
+  // Drag & drop state management
   const [dragState, setDragState] = useState<DragState>({
     isDragging: false,
     isDragOver: false,
     isDroppable: false
   });
 
-  // ファイル選択用のinput要素の参照
+  // File input element reference
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // ドラッグ&ドロップイベントハンドラー
+  // Drag & drop event handlers
   const handleDragEnter = useCallback((e: React.DragEvent) => {
     e.preventDefault();
     e.stopPropagation();
     
     if (disabled) return;
 
-    // ファイルがドラッグされているかチェック
+    // Check if files are being dragged
     const hasFiles = e.dataTransfer.types.includes('Files');
     
     setDragState(prev => ({
@@ -70,7 +70,7 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
     
     if (disabled) return;
 
-    // ドロップ可能な場合はカーソルを変更
+    // Change cursor if droppable
     e.dataTransfer.dropEffect = dragState.isDroppable ? 'copy' : 'none';
   }, [disabled, dragState.isDroppable]);
 
@@ -80,7 +80,7 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
     
     if (disabled) return;
 
-    // イベントターゲットがコンテナの子要素でない場合のみリセット
+    // Reset only if event target is not a child of the container
     const rect = e.currentTarget.getBoundingClientRect();
     const x = e.clientX;
     const y = e.clientY;
@@ -112,26 +112,26 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
     }
   }, [disabled, selectFiles]);
 
-  // ファイル選択ボタンクリック
+  // File select button click
   const handleFileSelectClick = useCallback(() => {
     if (disabled || !fileInputRef.current) return;
     fileInputRef.current.click();
   }, [disabled]);
 
-  // ファイル入力変更ハンドラー
+  // File input change handler
   const handleFileInputChange = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (files && files.length > 0) {
       await selectFiles(files);
     }
     
-    // ファイル入力をリセット（同じファイルを再選択可能にする）
+    // Reset file input (allow re-selecting the same file)
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
   }, [selectFiles]);
 
-  // リセットボタンクリック
+  // Reset button click
   const handleReset = useCallback(() => {
     reset();
     if (fileInputRef.current) {
@@ -139,7 +139,7 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
     }
   }, [reset]);
 
-  // スタイルクラスの計算
+  // Calculate style classes
   const getContainerClasses = (): string => {
     const baseClasses = [
       'border-2',
@@ -199,13 +199,13 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
     return baseClasses.join(' ');
   };
 
-  // アップロードエリアの表示内容
+  // Upload area content
   const renderUploadArea = () => {
     if (isLoading) {
       return (
         <div className="flex flex-col items-center space-y-2">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
-          <p className="text-sm font-medium">{state.progress?.currentStep || 'ファイル情報取得中...'}</p>
+          <p className="text-sm font-medium">{state.progress?.currentStep || 'Getting file information...'}</p>
         </div>
       );
     }
@@ -223,7 +223,7 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
             onClick={handleReset}
             className="text-sm text-red-600 hover:text-red-700 underline focus:outline-none focus:ring-2 focus:ring-red-500 rounded"
           >
-            リセット
+            Reset
           </button>
         </div>
       );
@@ -244,24 +244,24 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
         <div>
           <p className="text-lg font-medium mb-1">
             {dragState.isDragOver && dragState.isDroppable 
-              ? 'ファイルをここにドロップ' 
-              : 'ファイルをドラッグ&ドロップ'
+              ? 'Drop file here' 
+              : 'Drag & drop file'
             }
           </p>
           <p className="text-sm text-gray-500">
-            または<span className="text-blue-600">クリックしてファイルを選択</span>
+            or <span className="text-blue-600">click to select file</span>
           </p>
         </div>
 
         <div className="text-xs text-gray-400">
-          <p>対応形式: MP4, WebM, AVI, MOV, MKV, FLV, WMV</p>
-          <p>最大サイズ: 500MB</p>
+          <p>Supported formats: MP4, WebM, AVI, MOV, MKV, FLV, WMV</p>
+          <p>Maximum size: 500MB</p>
         </div>
       </div>
     );
   };
 
-  // ファイル情報表示
+  // File information display
   const renderFileInfo = () => {
     if (!state.videoFile) return null;
 
@@ -269,7 +269,7 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
     
     return (
       <div className="w-full max-w-md space-y-4">
-        {/* プレビュー画像 */}
+        {/* Preview image */}
         {videoFile.previewUrl && (
           <div className="flex justify-center">
             <img 
@@ -280,47 +280,47 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
           </div>
         )}
 
-        {/* ファイル詳細 */}
+        {/* File details */}
         <div className="bg-white rounded-lg p-4 border border-green-200">
           <h3 className="font-semibold text-green-700 mb-3 flex items-center">
             <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
             </svg>
-            ファイル情報
+            File Information
           </h3>
           
           <div className="space-y-2 text-sm">
             <div className="flex justify-between">
-              <span className="text-gray-600">ファイル名:</span>
+              <span className="text-gray-600">File name:</span>
               <span className="font-medium text-right flex-1 ml-2 break-all">{videoFile.name}</span>
             </div>
             
             <div className="flex justify-between">
-              <span className="text-gray-600">サイズ:</span>
+              <span className="text-gray-600">Size:</span>
               <span className="font-medium">{formatFileSize(videoFile.size)}</span>
             </div>
             
             <div className="flex justify-between">
-              <span className="text-gray-600">形式:</span>
+              <span className="text-gray-600">Format:</span>
               <span className="font-medium">{videoFile.type}</span>
             </div>
             
             {videoFile.duration && (
               <div className="flex justify-between">
-                <span className="text-gray-600">長さ:</span>
+                <span className="text-gray-600">Duration:</span>
                 <span className="font-medium">{formatDuration(videoFile.duration)}</span>
               </div>
             )}
           </div>
         </div>
 
-        {/* アクションボタン */}
+        {/* Action buttons */}
         <div className="flex gap-2">
           <button
             onClick={handleReset}
             className="flex-1 py-2 px-4 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-500 transition-colors"
           >
-            別のファイル
+            Choose Another File
           </button>
         </div>
       </div>
@@ -329,7 +329,7 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
 
   return (
     <div className={`file-uploader ${className}`}>
-      {/* ドラッグ&ドロップエリア */}
+      {/* Drag & drop area */}
       <div
         className={getContainerClasses()}
         onDragEnter={handleDragEnter}
@@ -339,7 +339,7 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
         onClick={state.videoFile ? undefined : handleFileSelectClick}
         role="button"
         tabIndex={disabled ? -1 : 0}
-        aria-label={state.videoFile ? "アップロード済みファイル" : "ファイルをドラッグ&ドロップまたはクリックして選択"}
+        aria-label={state.videoFile ? "Uploaded file" : "Drag & drop or click to select file"}
         onKeyDown={(e) => {
           if ((e.key === 'Enter' || e.key === ' ') && !state.videoFile && !disabled) {
             e.preventDefault();
@@ -350,7 +350,7 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
         {renderUploadArea()}
       </div>
 
-      {/* 隠しファイル入力 */}
+      {/* Hidden file input */}
       <input
         ref={fileInputRef}
         type="file"

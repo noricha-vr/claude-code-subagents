@@ -8,20 +8,20 @@ import { ConversionStatus } from './types';
 /**
  * Video to MP3 Converter Application
  * 
- * ブラウザ内で動画ファイルをMP3に変換するWebアプリケーション
- * FFmpeg.wasmを使用した完全クライアントサイド処理
+ * Web application to convert video files to MP3 in the browser
+ * Complete client-side processing using FFmpeg.wasm
  * 
- * 機能:
- * - ドラッグ&ドロップによるファイル選択
- * - リアルタイム変換進捗表示
- * - MP3ファイルのダウンロード
- * - Cross-Origin Isolation環境対応
+ * Features:
+ * - Drag & drop file selection
+ * - Real-time conversion progress display
+ * - MP3 file download
+ * - Cross-Origin Isolation environment support
  */
 const App: FC = () => {
   const conversion = useConversion();
 
 
-  // 変換開始ハンドラー
+  // Conversion start handler
   const handleStartConversion = () => {
     if (conversion.canConvert) {
       conversion.convertToMp3();
@@ -30,10 +30,10 @@ const App: FC = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
-      {/* ネットワーク状態表示 */}
+      {/* Network status display */}
       <NetworkStatus />
 
-      {/* ヘッダー */}
+      {/* Header */}
       <header className="bg-white/80 backdrop-blur-sm border-b border-gray-200">
         <div className="max-w-4xl mx-auto px-4 py-6">
           <div className="text-center">
@@ -44,7 +44,7 @@ const App: FC = () => {
               Convert video files to MP3 directly in your browser - No server upload required
             </p>
             
-            {/* PWAインストールボタン */}
+            {/* PWA install button */}
             <div className="flex justify-center">
               <PWAInstallButton />
             </div>
@@ -52,11 +52,11 @@ const App: FC = () => {
         </div>
       </header>
 
-      {/* メインコンテンツ */}
+      {/* Main content */}
       <main className="max-w-4xl mx-auto px-4 py-8">
         <div className="space-y-8">
           
-          {/* ファイルアップロード領域 */}
+          {/* File upload area */}
           <div className="bg-white rounded-2xl shadow-xl p-6 md:p-8">
             <div className="mb-6">
               <h2 className="text-xl font-semibold text-gray-800 mb-2">
@@ -69,7 +69,7 @@ const App: FC = () => {
             
             <FileUploader conversion={conversion} />
 
-            {/* ファイル選択後の変換ボタン */}
+            {/* Conversion button after file selection */}
             {conversion.state.videoFile && conversion.status === ConversionStatus.IDLE && (
               <div className="mt-6 text-center">
                 <button
@@ -83,7 +83,7 @@ const App: FC = () => {
             
           </div>
 
-          {/* 変換進捗領域 */}
+          {/* Conversion progress area */}
           {(conversion.status === ConversionStatus.LOADING || 
             conversion.status === ConversionStatus.PROCESSING) && (
             <div className="bg-white rounded-2xl shadow-xl p-6 md:p-8">
@@ -106,7 +106,7 @@ const App: FC = () => {
             </div>
           )}
 
-          {/* ダウンロード領域 */}
+          {/* Download area */}
           {conversion.status === ConversionStatus.COMPLETED && (
             <div className="bg-white rounded-2xl shadow-xl p-6 md:p-8">
               <div className="mb-6">
@@ -120,7 +120,7 @@ const App: FC = () => {
               
               <DownloadButton conversionReturn={conversion} />
 
-              {/* 新しいファイル変換ボタン */}
+              {/* Convert another file button */}
               <div className="mt-6 text-center">
                 <button
                   onClick={conversion.reset}
@@ -132,7 +132,7 @@ const App: FC = () => {
             </div>
           )}
 
-          {/* エラー表示 */}
+          {/* Error display */}
           {conversion.hasError && (
             <div className="bg-red-50 border border-red-200 rounded-2xl p-6">
               <div className="flex items-start gap-3">
@@ -156,7 +156,7 @@ const App: FC = () => {
         </div>
       </main>
 
-      {/* フッター */}
+      {/* Footer */}
       <footer className="mt-16 pb-8">
         <div className="max-w-4xl mx-auto px-4 text-center">
           <div className="bg-white/50 rounded-xl p-6 text-sm text-gray-600">
