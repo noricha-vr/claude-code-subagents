@@ -222,3 +222,33 @@ export const downloadArrayBuffer = (
   // メモリリーク防止
   setTimeout(() => URL.revokeObjectURL(url), 100);
 };
+
+/**
+ * ファイルサイズを読みやすい形式でフォーマット
+ */
+export const formatFileSize = (bytes: number): string => {
+  if (bytes === 0) return '0 B';
+  
+  const k = 1024;
+  const sizes = ['B', 'KB', 'MB', 'GB'];
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+  
+  return `${parseFloat((bytes / Math.pow(k, i)).toFixed(1))} ${sizes[i]}`;
+};
+
+/**
+ * 秒数を時間:分:秒形式でフォーマット
+ */
+export const formatDuration = (seconds: number): string => {
+  if (!seconds || !isFinite(seconds)) return '不明';
+  
+  const hours = Math.floor(seconds / 3600);
+  const mins = Math.floor((seconds % 3600) / 60);
+  const secs = Math.floor(seconds % 60);
+  
+  if (hours > 0) {
+    return `${hours}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+  }
+  
+  return `${mins}:${secs.toString().padStart(2, '0')}`;
+};

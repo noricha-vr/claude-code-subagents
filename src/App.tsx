@@ -6,10 +6,13 @@ import { APP_CONFIG, formatFileSize, formatDuration } from './utils/constants';
 import { createFFmpegService } from './services';
 // useConversionフックテスト
 import { ConversionTest } from './components/ConversionTest';
+// FileUploaderコンポーネントテスト
+import { FileUploader } from './components/FileUploader';
 
 function App() {
   const [count, setCount] = useState(0);
   const [showConversionTest, setShowConversionTest] = useState(false);
+  const [showFileUploaderTest, setShowFileUploaderTest] = useState(false);
 
   // 型定義とユーティリティ関数の動作テスト
   const testUtilities = () => {
@@ -51,6 +54,44 @@ function App() {
     }
   };
 
+  // FileUploaderコンポーネントテストの表示切り替え
+  if (showFileUploaderTest) {
+    return (
+      <div className="min-h-screen bg-gray-50 py-8">
+        <div className="max-w-4xl mx-auto px-4">
+          <div className="mb-4">
+            <button
+              onClick={() => setShowFileUploaderTest(false)}
+              className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600 transition-colors"
+            >
+              ← 戻る
+            </button>
+          </div>
+          
+          <div className="bg-white rounded-lg shadow-lg p-6">
+            <h1 className="text-2xl font-bold text-gray-900 mb-6">
+              FileUploader テスト
+            </h1>
+            <p className="text-gray-600 mb-6">
+              ドラッグ&ドロップまたはファイル選択でMP4ファイルをアップロードしてください。
+            </p>
+            
+            <FileUploader className="max-w-2xl mx-auto" />
+            
+            <div className="mt-6 text-sm text-gray-500">
+              <p>✅ ドラッグ&ドロップ対応</p>
+              <p>✅ ファイル選択ボタン</p>
+              <p>✅ ファイル検証とエラー表示</p>
+              <p>✅ アップロードされたファイル情報の表示</p>
+              <p>✅ TailwindCSSでのスタイリング</p>
+              <p>⚠️ 動画ファイルを選択してテストしてください</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   // useConversionフックテストの表示切り替え
   if (showConversionTest) {
     return (
@@ -80,7 +121,7 @@ function App() {
           Convert video files to MP3 directly in your browser
         </p>
         <div className="bg-white p-6 rounded-lg shadow-lg">
-          <p className="text-sm text-gray-500 mb-4">Step 5: useConversionフック実装完了</p>
+          <p className="text-sm text-gray-500 mb-4">Step 6: FileUploaderコンポーネント実装完了</p>
           <div className="space-y-3">
             <button
               onClick={() => setCount((count) => count + 1)}
@@ -106,6 +147,12 @@ function App() {
             >
               useConversionフックテスト
             </button>
+            <button
+              onClick={() => setShowFileUploaderTest(true)}
+              className="px-6 py-2 bg-indigo-500 text-white rounded-md hover:bg-indigo-600 transition-colors block w-full"
+            >
+              FileUploaderコンポーネントテスト
+            </button>
           </div>
           <div className="mt-4 text-xs text-gray-400">
             <p>✅ TypeScript型定義完了</p>
@@ -113,6 +160,7 @@ function App() {
             <p>✅ 定数定義完了</p>
             <p>✅ FFmpeg.wasmサービス実装完了</p>
             <p>✅ useConversionフック実装完了</p>
+            <p>✅ FileUploaderコンポーネント実装完了</p>
             <p>⚠️ ブラウザコンソールでテスト結果を確認してください</p>
           </div>
         </div>

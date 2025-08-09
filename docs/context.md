@@ -1,8 +1,8 @@
 # 動画→MP3変換アプリ実装状況
 
 ## プロジェクト基本情報
-- 進捗: 5/12 (Step 5 完了 - Step 6 実装開始)
-- 更新日時: 2025-08-09 11:00
+- 進捗: 6/12 (Step 6 完了 - Step 7 実装開始)
+- 更新日時: 2025-08-09 11:25
 - 実装対象: 動画→MP3変換ウェブアプリケーション
 
 ## 実装ステップ
@@ -35,13 +35,13 @@
 - 対象ファイル: src/hooks/useConversion.ts, src/hooks/index.ts, src/utils/fileUtils.ts, src/components/ConversionTest.tsx
 - 内容: 変換状態管理、FFmpegサービス統合、進捗追跡ロジック、ファイル検証ユーティリティ
 - 技術要素: React hooks、useState、useCallback、useEffect、非同期処理管理、File API、Blob URL
-- 完了: [x] 完了済み (2025-08-09)
+- 完了: [x] 完了済み (2025-08-09、レビュー指摘事項修正完了)
 
-### Step 6: ファイルアップロードコンポーネント
-- 対象ファイル: src/components/FileUploader.tsx
+### Step 6: ファイルアップロードコンポーネント ✅
+- 対象ファイル: src/components/FileUploader.tsx, src/components/index.ts, src/utils/fileUtils.ts
 - 内容: ドラッグ&ドロップによるファイル選択UI
-- 技術要素: HTML5 File API、React DnDライブラリ
-- 完了: [ ]
+- 技術要素: HTML5 File API、TailwindCSSドラッグスタイル、useConversionフック統合
+- 完了: [x] 完了済み (2025-08-09)
 
 ### Step 7: 変換進捗表示コンポーネント
 - 対象ファイル: src/components/ConversionProgress.tsx
@@ -323,6 +323,19 @@ Step 4のFFmpeg.wasm実装に必要なすべての型定義とユーティリテ
 - 型安全なインターフェースと計算プロパティ（isIdle, canConvert等）
 - 変更ファイル: src/hooks/useConversion.ts, src/hooks/index.ts, src/utils/fileUtils.ts, src/components/ConversionTest.tsx, src/App.tsx
 - 備考: ブラウザテスト実行中（フック正常動作確認、UI表示完了、Step 6のコンポーネント実装準備完了）
+
+### Step 6 完了
+- FileUploaderコンポーネント（src/components/FileUploader.tsx）の包括的な実装完了
+- ドラッグ&ドロップ対応のファイル選択UI（HTML5 File API、React DnD）
+- TailwindCSSによる美しいスタイリング（グラデーション、アニメーション、レスポンシブ対応）
+- ファイル検証とエラー表示（サポート形式チェック、サイズ制限、詳細エラーメッセージ）
+- アップロードされたファイル情報表示（プレビューサムネイル、メタデータ表示）
+- useConversionフックとの完全統合（状態管理、ライフサイクル連携）
+- formatFileSize・formatDuration関数の実装（src/utils/fileUtils.ts）
+- コンポーネントインデックス（src/components/index.ts）での型安全エクスポート
+- App.tsxでのテストページ統合（独立したテスト環境）
+- 変更ファイル: src/components/FileUploader.tsx, src/components/index.ts, src/utils/fileUtils.ts, src/App.tsx
+- 備考: ブラウザテスト完了（74KBのMP4ファイルでファイル選択、プレビュー生成、変換ボタン有効化確認済み）
 
 ## 👁️ レビュー結果
 
