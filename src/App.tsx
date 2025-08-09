@@ -1,6 +1,8 @@
-import React, { useEffect } from 'react';
+import { type FC } from 'react';
 import { useConversion } from './hooks';
 import { FileUploader, ConversionProgress, DownloadButton } from './components';
+import { PWAInstallButton } from './components/PWAInstallButton';
+import { NetworkStatus } from './components/NetworkStatus';
 import { ConversionStatus } from './types';
 
 /**
@@ -15,7 +17,7 @@ import { ConversionStatus } from './types';
  * - MP3ファイルのダウンロード
  * - Cross-Origin Isolation環境対応
  */
-function App() {
+const App: FC = () => {
   const conversion = useConversion();
 
 
@@ -28,6 +30,9 @@ function App() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
+      {/* ネットワーク状態表示 */}
+      <NetworkStatus />
+
       {/* ヘッダー */}
       <header className="bg-white/80 backdrop-blur-sm border-b border-gray-200">
         <div className="max-w-4xl mx-auto px-4 py-6">
@@ -35,9 +40,14 @@ function App() {
             <h1 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-2">
               Video to MP3 Converter
             </h1>
-            <p className="text-gray-600 text-sm md:text-base">
+            <p className="text-gray-600 text-sm md:text-base mb-4">
               Convert video files to MP3 directly in your browser - No server upload required
             </p>
+            
+            {/* PWAインストールボタン */}
+            <div className="flex justify-center">
+              <PWAInstallButton />
+            </div>
           </div>
         </div>
       </header>
@@ -57,10 +67,10 @@ function App() {
               </p>
             </div>
             
-            <FileUploader />
+            <FileUploader conversion={conversion} />
 
             {/* ファイル選択後の変換ボタン */}
-            {conversion.canConvert && conversion.status === ConversionStatus.IDLE && (
+            {conversion.state.videoFile && conversion.status === ConversionStatus.IDLE && (
               <div className="mt-6 text-center">
                 <button
                   onClick={handleStartConversion}
@@ -70,12 +80,12 @@ function App() {
                 </button>
               </div>
             )}
+            
           </div>
 
           {/* 変換進捗領域 */}
           {(conversion.status === ConversionStatus.LOADING || 
-            conversion.status === ConversionStatus.PROCESSING || 
-            conversion.hasError) && (
+            conversion.status === ConversionStatus.PROCESSING) && (
             <div className="bg-white rounded-2xl shadow-xl p-6 md:p-8">
               <div className="mb-6">
                 <h2 className="text-xl font-semibold text-gray-800 mb-2">
@@ -86,7 +96,13 @@ function App() {
                 </p>
               </div>
               
-              <ConversionProgress />
+              <ConversionProgress
+                status={conversion.status}
+                progress={conversion.state.progress?.percentage || 0}
+                currentStep={conversion.state.progress?.currentStep || ''}
+                estimatedTimeRemaining={conversion.state.progress?.estimatedTimeLeft || 0}
+                fileName={conversion.state.videoFile?.name}
+              />
             </div>
           )}
 
@@ -102,7 +118,7 @@ function App() {
                 </p>
               </div>
               
-              <DownloadButton />
+              <DownloadButton conversionReturn={conversion} />
 
               {/* 新しいファイル変換ボタン */}
               <div className="mt-6 text-center">
@@ -145,17 +161,20 @@ function App() {
         <div className="max-w-4xl mx-auto px-4 text-center">
           <div className="bg-white/50 rounded-xl p-6 text-sm text-gray-600">
             <p className="mb-2">
-              <span className="font-medium">✨ Features:</span> Browser-only processing • No server upload • 
-              Cross-Origin Isolation enabled • FFmpeg.wasm powered
+              <span className="font-medium">✨ Features:</span> PWA enabled • Browser-only processing • No server upload • 
+              Cross-Origin Isolation enabled • FFmpeg.wasm powered • Offline support
+            </p>
+            <p className="text-xs text-gray-500 mb-2">
+              Best experience on Chrome with hardware acceleration enabled
             </p>
             <p className="text-xs text-gray-500">
-              Best experience on Chrome with hardware acceleration enabled
+              Install this app for offline usage and better performance
             </p>
           </div>
         </div>
       </footer>
     </div>
   );
-}
+};
 
 export default App;

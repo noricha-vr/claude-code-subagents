@@ -4,8 +4,7 @@
  */
 
 import React, { useState, useRef, useCallback } from 'react';
-import type { DragState } from '../types';
-import { useConversion } from '../hooks';
+import type { DragState, UseConversionReturn } from '../types';
 import { formatFileSize, formatDuration } from '../utils/fileUtils';
 import { SUPPORTED_VIDEO_TYPES } from '../utils/constants';
 
@@ -17,6 +16,8 @@ interface FileUploaderProps {
   className?: string;
   /** 無効状態 */
   disabled?: boolean;
+  /** useConversion フックの戻り値 */
+  conversion: UseConversionReturn;
 }
 
 /**
@@ -24,17 +25,17 @@ interface FileUploaderProps {
  */
 export const FileUploader: React.FC<FileUploaderProps> = ({
   className = '',
-  disabled = false
+  disabled = false,
+  conversion
 }) => {
-  // useConversionフックから必要な値を取得
+  // 受け取ったconversionから必要な値を取得
   const { 
     state,
     selectFiles,
     reset,
     isLoading,
-    hasError,
-    canConvert
-  } = useConversion();
+    hasError
+  } = conversion;
 
   // ドラッグ&ドロップの状態管理
   const [dragState, setDragState] = useState<DragState>({

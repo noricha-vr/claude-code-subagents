@@ -1,15 +1,21 @@
 import React from 'react';
 import { ConversionStatus } from '../types';
-import { useConversion } from '../hooks';
 
-export const ConversionProgress: React.FC = () => {
-  const { state, isLoading, isProcessing, hasError } = useConversion();
-  
-  const status = state.status;
-  const progress = state.progress?.percentage || 0;
-  const currentStep = state.progress?.currentStep || '';
-  const estimatedTimeRemaining = state.progress?.estimatedTimeLeft || 0;
-  const fileName = state.videoFile?.name;
+interface ConversionProgressProps {
+  status: ConversionStatus;
+  progress: number;
+  currentStep: string;
+  estimatedTimeRemaining: number;
+  fileName?: string;
+}
+
+export const ConversionProgress: React.FC<ConversionProgressProps> = ({
+  status,
+  progress,
+  currentStep,
+  estimatedTimeRemaining,
+  fileName
+}) => {
   // 進捗状況に応じたメッセージ
   const getStatusMessage = (): string => {
     switch (status) {
@@ -63,7 +69,7 @@ export const ConversionProgress: React.FC = () => {
     return '';
   };
 
-  if (!isLoading && !isProcessing && !hasError) {
+  if (status === ConversionStatus.IDLE) {
     return null;
   }
 

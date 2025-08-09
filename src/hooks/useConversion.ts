@@ -21,6 +21,7 @@ import { ERROR_MESSAGES, CONVERSION_STEPS, generateMp3Filename } from '../utils/
 export interface UseConversionReturn {
   // 状態
   state: ConversionState;
+  status: ConversionStatus;
   
   // アクション
   selectFile: (file: File) => Promise<boolean>;
@@ -65,19 +66,8 @@ export const useConversion = (): UseConversionReturn => {
    * 状態を安全に更新（アンマウント後は更新しない）
    */
   const safeSetState = useCallback((newState: Partial<ConversionState>) => {
-    console.log('safeSetState呼び出し:', {
-      isUnmounted: isUnmounted.current,
-      newState
-    });
-    
     if (!isUnmounted.current) {
-      setState(prev => {
-        const nextState = { ...prev, ...newState };
-        console.log('setState実行:', { prev, newState, nextState });
-        return nextState;
-      });
-    } else {
-      console.warn('アンマウント後のため状態更新をスキップ');
+      setState(prev => ({ ...prev, ...newState }));
     }
   }, []);
 
@@ -117,18 +107,13 @@ export const useConversion = (): UseConversionReturn => {
         errorMessage: null
       });
 
-      console.log('ファイル検証開始:', file.name, file.size, file.type);
-      
       // 検証実行
       const validation: FileValidationResult = await validateFile(file);
       
       if (!validation.isValid) {
-        console.error('ファイル検証失敗:', validation.errorMessage);
         setError(validation.errorMessage || ERROR_MESSAGES.UNSUPPORTED_FORMAT);
         return false;
       }
-
-      console.log('ファイル検証成功:', validation.videoFile);
       
       // 正常ファイルを設定
       safeSetState({
@@ -164,18 +149,13 @@ export const useConversion = (): UseConversionReturn => {
         errorMessage: null
       });
 
-      console.log('複数ファイル検証開始:', files.length, 'ファイル');
-      
       // 最初の有効ファイルを検索
       const validation: FileValidationResult = await validateFiles(files);
       
       if (!validation.isValid) {
-        console.error('複数ファイル検証失敗:', validation.errorMessage);
         setError(validation.errorMessage || ERROR_MESSAGES.UNSUPPORTED_FORMAT);
         return false;
       }
-
-      console.log('複数ファイル検証成功:', validation.videoFile);
       
       // 正常ファイルを設定
       safeSetState({
@@ -345,6 +325,7 @@ export const useConversion = (): UseConversionReturn => {
   return {
     // 状態
     state,
+    status: state.status,
     
     // アクション
     selectFile,

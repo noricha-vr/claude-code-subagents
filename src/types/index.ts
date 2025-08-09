@@ -167,3 +167,28 @@ export interface AppError {
   /** スタックトレース（開発環境のみ） */
   stack?: string;
 }
+
+/**
+ * useConversionフックの戻り値型定義
+ */
+export interface UseConversionReturn {
+  // 状態
+  state: ConversionState;
+  status: ConversionStatus;
+  
+  // アクション
+  selectFile: (file: File) => Promise<boolean>;
+  selectFiles: (files: FileList | File[]) => Promise<boolean>;
+  convertToMp3: () => Promise<boolean>;
+  downloadMp3: () => void;
+  reset: () => void;
+  
+  // ユーティリティ
+  isIdle: boolean;
+  isLoading: boolean;
+  isProcessing: boolean;
+  isCompleted: boolean;
+  hasError: boolean;
+  canConvert: boolean;
+  canDownload: boolean;
+}
