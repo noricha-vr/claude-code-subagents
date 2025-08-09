@@ -1,7 +1,28 @@
 import { useState } from 'react';
+// 型定義とユーティリティの動作確認
+import { ConversionStatus, type ConversionState } from './types';
+import { APP_CONFIG, formatFileSize, formatDuration } from './utils/constants';
 
 function App() {
   const [count, setCount] = useState(0);
+
+  // 型定義とユーティリティ関数の動作テスト
+  const testUtilities = () => {
+    console.log('=== 型定義・ユーティリティ動作テスト ===');
+    console.log('APP_CONFIG:', APP_CONFIG);
+    console.log('ConversionStatus.IDLE:', ConversionStatus.IDLE);
+    console.log('formatFileSize(1048576):', formatFileSize(1048576)); // 1MB
+    console.log('formatDuration(125):', formatDuration(125)); // 2:05
+    
+    const testState: ConversionState = {
+      status: ConversionStatus.IDLE,
+      videoFile: null,
+      mp3File: null,
+      progress: null,
+      errorMessage: null
+    };
+    console.log('Test ConversionState:', testState);
+  };
 
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -13,13 +34,26 @@ function App() {
           Convert video files to MP3 directly in your browser
         </p>
         <div className="bg-white p-6 rounded-lg shadow-lg">
-          <p className="text-sm text-gray-500 mb-4">Development Environment Setup Complete</p>
-          <button
-            onClick={() => setCount((count) => count + 1)}
-            className="px-6 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors"
-          >
-            Count is {count}
-          </button>
+          <p className="text-sm text-gray-500 mb-4">Step 3: 型定義とユーティリティ完成</p>
+          <div className="space-y-3">
+            <button
+              onClick={() => setCount((count) => count + 1)}
+              className="px-6 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors block w-full"
+            >
+              Count is {count}
+            </button>
+            <button
+              onClick={testUtilities}
+              className="px-6 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 transition-colors block w-full"
+            >
+              型定義・ユーティリティ動作テスト
+            </button>
+          </div>
+          <div className="mt-4 text-xs text-gray-400">
+            <p>✅ TypeScript型定義完了</p>
+            <p>✅ ユーティリティ関数完了</p>
+            <p>✅ 定数定義完了</p>
+          </div>
         </div>
       </div>
     </div>
