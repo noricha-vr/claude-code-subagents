@@ -35,6 +35,8 @@ export const ConversionTest: React.FC = () => {
       console.log('Calling selectFile with:', file.name, file.size, file.type);
       const result = await selectFile(file);
       console.log('selectFile result:', result);
+      // 状態変化を確認
+      console.log('After selectFile - current canConvert:', canConvert);
     }
   };
 
@@ -57,6 +59,7 @@ export const ConversionTest: React.FC = () => {
     if (hasError) return 'エラー';
     if (isCompleted) return '変換完了';
     if (isProcessing) return '変換中';
+    if (isLoading && state.progress?.currentStep.includes('メタデータ')) return 'ファイル情報取得中';
     if (isLoading) return 'ライブラリ読み込み中';
     return '待機中';
   };
