@@ -6,6 +6,7 @@
 import React, { useRef } from 'react';
 import { useConversion } from '../hooks/useConversion';
 import { formatFileSize, formatDuration } from '../utils/constants';
+import { ConversionProgress } from './ConversionProgress';
 
 /**
  * ConversionTest - useConversionフックの動作確認コンポーネント
@@ -70,7 +71,18 @@ export const ConversionTest: React.FC = () => {
         useConversion フックテスト
       </h2>
 
-      {/* ステータス表示 */}
+      {/* 進捗表示コンポーネント（Step 7） */}
+      <div className="mb-6">
+        <ConversionProgress
+          status={state.status}
+          progress={state.progress?.percentage || 0}
+          currentStep={state.progress?.currentStep || ''}
+          estimatedTimeRemaining={(state.progress?.estimatedTimeLeft || 0) / 1000}
+          fileName={state.videoFile?.name}
+        />
+      </div>
+
+      {/* 従来のステータス表示 */}
       <div className="mb-6 p-4 bg-gray-50 rounded-lg">
         <div className="flex justify-between items-center mb-2">
           <span className="font-semibold">状態:</span>
@@ -78,26 +90,6 @@ export const ConversionTest: React.FC = () => {
             {getStatusText()}
           </span>
         </div>
-        
-        {state.progress && (
-          <div className="mt-4">
-            <div className="flex justify-between text-sm text-gray-600 mb-1">
-              <span>{state.progress.currentStep}</span>
-              <span>{state.progress.percentage}%</span>
-            </div>
-            <div className="w-full bg-gray-200 rounded-full h-2">
-              <div 
-                className="bg-blue-600 h-2 rounded-full transition-all duration-300"
-                style={{ width: `${state.progress.percentage}%` }}
-              />
-            </div>
-            {state.progress.estimatedTimeLeft && (
-              <div className="text-xs text-gray-500 mt-1">
-                残り時間: {formatDuration(state.progress.estimatedTimeLeft / 1000)}
-              </div>
-            )}
-          </div>
-        )}
 
         {state.errorMessage && (
           <div className="mt-2 p-2 bg-red-100 border border-red-300 rounded text-red-700 text-sm">

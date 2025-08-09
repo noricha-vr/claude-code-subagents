@@ -5,3 +5,4 @@
 
 export { ConversionTest } from './ConversionTest';
 export { FileUploader } from './FileUploader';
+export { ConversionProgress } from './ConversionProgress';
