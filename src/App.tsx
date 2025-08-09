@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { ConversionStatus, type ConversionState } from './types';
 import { APP_CONFIG, formatFileSize, formatDuration } from './utils/constants';
 // FFmpegサービステスト
-import { testFFmpegService } from './services/test';
+import { createFFmpegService } from './services';
 
 function App() {
   const [count, setCount] = useState(0);
@@ -24,6 +24,28 @@ function App() {
       errorMessage: null
     };
     console.log('Test ConversionState:', testState);
+  };
+
+  // FFmpeg.wasmサービスの動作テスト
+  const testFFmpegService = async () => {
+    console.log('=== FFmpeg.wasmサービス動作テスト ===');
+    const ffmpegService = createFFmpegService();
+    
+    // 環境チェック
+    console.log('Cross-Origin Isolation:', crossOriginIsolated);
+    console.log('SharedArrayBuffer support:', typeof SharedArrayBuffer !== 'undefined');
+    
+    try {
+      // FFmpegロードテスト
+      console.log('FFmpeg.wasmを読み込み中...');
+      await ffmpegService.loadFFmpeg((progress) => {
+        console.log(`読み込み進捗: ${progress.percentage}% - ${progress.currentStep}`);
+      });
+      console.log('FFmpeg.wasm読み込み完了！');
+      console.log('FFmpeg読み込み済み:', ffmpegService.isFFmpegLoaded());
+    } catch (error) {
+      console.error('FFmpeg.wasmテストエラー:', error);
+    }
   };
 
   return (
