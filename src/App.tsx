@@ -2,6 +2,8 @@ import { useState } from 'react';
 // 型定義とユーティリティの動作確認
 import { ConversionStatus, type ConversionState } from './types';
 import { APP_CONFIG, formatFileSize, formatDuration } from './utils/constants';
+// FFmpegサービステスト
+import { testFFmpegService } from './services/test';
 
 function App() {
   const [count, setCount] = useState(0);
@@ -34,7 +36,7 @@ function App() {
           Convert video files to MP3 directly in your browser
         </p>
         <div className="bg-white p-6 rounded-lg shadow-lg">
-          <p className="text-sm text-gray-500 mb-4">Step 3: 型定義とユーティリティ完成</p>
+          <p className="text-sm text-gray-500 mb-4">Step 4: FFmpeg.wasmサービス実装中...</p>
           <div className="space-y-3">
             <button
               onClick={() => setCount((count) => count + 1)}
@@ -48,11 +50,19 @@ function App() {
             >
               型定義・ユーティリティ動作テスト
             </button>
+            <button
+              onClick={testFFmpegService}
+              className="px-6 py-2 bg-purple-500 text-white rounded-md hover:bg-purple-600 transition-colors block w-full"
+            >
+              FFmpeg.wasmサービステスト
+            </button>
           </div>
           <div className="mt-4 text-xs text-gray-400">
             <p>✅ TypeScript型定義完了</p>
             <p>✅ ユーティリティ関数完了</p>
             <p>✅ 定数定義完了</p>
+            <p>🔄 FFmpeg.wasmサービス実装</p>
+            <p>⚠️ ブラウザコンソールでテスト結果を確認してください</p>
           </div>
         </div>
       </div>
