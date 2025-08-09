@@ -7,11 +7,14 @@ import React, { useRef } from 'react';
 import { useConversion } from '../hooks/useConversion';
 import { formatFileSize, formatDuration } from '../utils/constants';
 import { ConversionProgress } from './ConversionProgress';
+import { DownloadButton } from './DownloadButton';
 
 /**
  * ConversionTest - useConversionフックの動作確認コンポーネント
  */
 export const ConversionTest: React.FC = () => {
+  const conversionReturn = useConversion();
+  
   const {
     state,
     selectFile,
@@ -25,7 +28,7 @@ export const ConversionTest: React.FC = () => {
     hasError,
     canConvert,
     canDownload
-  } = useConversion();
+  } = conversionReturn;
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -130,10 +133,15 @@ export const ConversionTest: React.FC = () => {
         </div>
       )}
 
-      {/* MP3ファイル情報 */}
-      {state.mp3File && (
+      {/* ダウンロードボタンコンポーネント（Step 8） */}
+      <div className="mb-6">
+        <DownloadButton conversionReturn={conversionReturn} />
+      </div>
+
+      {/* MP3ファイル情報（デバッグ用） */}
+      {state.mp3File && import.meta.env.DEV && (
         <div className="mb-6 p-4 bg-green-50 rounded-lg">
-          <h3 className="font-semibold text-gray-800 mb-2">変換されたMP3ファイル</h3>
+          <h3 className="font-semibold text-gray-800 mb-2">変換されたMP3ファイル（デバッグ情報）</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm">
             <div>
               <span className="font-medium">ファイル名:</span> {state.mp3File.name}
